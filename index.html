@@ -466,6 +466,9 @@ function initApp(){
   chip.className='user-chip'+(u.role==='admin'?' admin-chip':'');
   chip.innerHTML=`<span style="width:28px;height:28px;border-radius:50%;background:${u.bg};color:${u.color};display:inline-flex;align-items:center;justify-content:center;font-weight:600;font-size:.78rem">${u.initials}</span> ${u.name}${u.role==='admin'?' · Admin':''}`;
   document.getElementById('admin-nav-btn').style.display=u.role==='admin'?'block':'none';
+  // Forhåndsvelg riktig bruker i bestillingsskjema
+  const whoSel=document.getElementById('f-who');
+  if(whoSel) whoSel.value=u.id;
   renderCal(); renderPriceDisplay(); renderAllBookings();
   if(u.role==='admin') renderAdmin();
   showPage('cal', document.querySelector('nav button'));
@@ -497,7 +500,7 @@ function renderCal(){
     el.className='cal-day'; el.textContent=d;
     if(dObj<today) el.classList.add('past');
     else if(blocked.has(ds)) el.classList.add('booked');
-    else if(isAdmin){
+    else{
       el.classList.add('clickable');
       if(selStart&&selEnd){
         if(ds===selStart||ds===selEnd) el.classList.add('selected');
