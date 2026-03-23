@@ -305,7 +305,6 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:#1a6b8a;box-sh
         <button class="btn btn-sm" style="margin-top:.5rem" onclick="savePrices()">Lagre priser</button>
       </div>
       <div id="tab-block" class="section">
-        <p style="font-size:.85rem;color:#666;margin-bottom:1rem">Blokker datoer for vedlikehold eller eget bruk.</p>
         <div class="form-grid">
           <div><label>Fra dato</label><input type="date" id="b-from"></div>
           <div><label>Til dato</label><input type="date" id="b-to"></div>
@@ -635,8 +634,9 @@ function renderAdmin(){
           ${b.revenue?`<div style="font-size:.82rem;color:#1e7e34;font-weight:500">kr ${b.revenue.toLocaleString('no-NO')}</div>`:''}
         </div>
       </div>
-      <div style="display:flex;gap:.4rem;align-items:center">
+      <div style="display:flex;gap:.4rem;align-items:center;flex-wrap:wrap">
         <span class="status-badge ${badge}">${label}</span>
+        <button class="del-btn" style="color:#1a6b8a;border-color:#b0d4e8" onclick="editB('${b.firestoreId}')">Rediger</button>
         <button class="del-btn" onclick="deleteB('${b.firestoreId}')">Slett</button>
       </div>`;
     list.appendChild(el);
@@ -648,7 +648,52 @@ function renderAdmin(){
   document.getElementById('p-minnights').value=prices.minNights;
 }
 
-window.deleteB=async function(firestoreId){
+window.editB=function(firestoreId){
+  const b=bookings.find(x=>x.firestoreId===firestoreId);
+  if(!b)return;
+  document.getElementById('e-name').value=b.name||'';
+  document.getElementById('e-who').value=b.userId||'SB';
+  document.getElementById('e-from').value=b.from||'';
+  document.getElementById('e-to').value=b.to||'';
+  document.getElementById('e-guests').value=b.guests||'2';
+  document.getElementById('e-phone').value=b.phone||'';
+  document.getElementById('e-email').value=b.email||'';
+  document.getElementById('e-revenue').value=b.revenue||0;
+  document.getElementById('e-msg').value=b.msg||'';
+  document.getElementById('e-status').value=b.status||'confirmed';
+  document.getElementById('edit-modal').dataset.id=firestoreId;
+  document.getElementById('edit-modal').style.display='block';
+};
+
+window.closeEdit=function(){
+  document.getElementById('edit-modal').style.display='none';
+};
+
+window.saveEdit=async function(){
+  const firestoreId=document.getElementById('edit-modal').dataset.id;
+  const from=document.getElementById('e-from').value;
+  const to=document.getElementById('e-to').value;
+  if(!from||!to||from>=to)return showToast('Sjekk datoer','error');
+  const whoId=document.getElementById('e-who').value;
+  const who=USERS.find(u=>u.id===whoId);
+  const{nights}=calcStay(from,to);
+  const updated={
+    name:document.getElementById('e-name').value,
+    userId:whoId, userInitials:who.initials, registeredBy:who.name,
+    from, to, nights,
+    guests:document.getElementById('e-guests').value,
+    phone:document.getElementById('e-phone').value,
+    email:document.getElementById('e-email').value,
+    revenue:+document.getElementById('e-revenue').value,
+    msg:document.getElementById('e-msg').value,
+    status:document.getElementById('e-status').value,
+  };
+  try{
+    await setDoc(doc(db,'bookings',firestoreId), updated, {merge:true});
+    closeEdit();
+    showToast('Booking oppdatert! ☁️');
+  }catch(e){showToast('Feil ved lagring: '+e.message,'error');}
+};
   try{
     await deleteDoc(doc(db,'bookings',firestoreId));
     showToast('Booking slettet!');
