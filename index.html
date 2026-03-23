@@ -1,1 +1,655 @@
-https://claude.ai/artifacts/148566b6-7aac-42f1-839f-5a576bf35c2e
+<!DOCTYPE html>
+<html lang="no">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sol i Torremolinos</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:system-ui,sans-serif;background:#f5f0eb;color:#222}
+.hero{background:linear-gradient(135deg,#1a6b8a,#2d9cbc);color:#fff;padding:3rem 1.5rem 2rem;text-align:center}
+.hero h1{font-size:2.2rem;font-weight:600;margin-bottom:.5rem}
+.hero p{opacity:.88;font-size:1.05rem}
+.badge{display:inline-block;background:rgba(255,255,255,.2);border-radius:20px;padding:.25rem .9rem;font-size:.82rem;margin:.3rem .2rem}
+nav{display:flex;justify-content:center;background:#fff;border-bottom:1px solid #e0ddd8;position:sticky;top:0;z-index:100;flex-wrap:wrap}
+nav button{background:none;border:none;padding:.85rem 1.2rem;font-size:.93rem;cursor:pointer;color:#555;border-bottom:2.5px solid transparent;transition:.2s}
+nav button.active{color:#1a6b8a;border-bottom-color:#1a6b8a;font-weight:500}
+.user-bar{background:#fff;border-bottom:1px solid #e0ddd8;padding:.5rem 1.5rem;display:flex;justify-content:space-between;align-items:center;font-size:.85rem}
+.user-chip{background:#e8f4f8;color:#1a6b8a;border-radius:20px;padding:.25rem .85rem;font-weight:500;display:flex;align-items:center;gap:.5rem}
+.admin-chip{background:#fef3e2;color:#856404}
+.page{display:none;max-width:860px;margin:0 auto;padding:2rem 1rem}
+.page.active{display:block}
+.card{background:#fff;border-radius:14px;padding:1.5rem;margin-bottom:1.2rem;border:1px solid #e8e4df}
+h2{font-size:1.25rem;font-weight:600;margin-bottom:1rem;color:#1a1a1a}
+h3{font-size:1rem;font-weight:600;margin-bottom:.6rem;color:#333}
+
+/* Login */
+.login-wrap{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:1rem}
+.login-card{background:#fff;border-radius:18px;padding:2.5rem 2rem;max-width:380px;width:100%;border:1px solid #e8e4df;text-align:center}
+.login-card h1{font-size:1.5rem;font-weight:600;margin-bottom:.3rem}
+.login-card p{color:#777;font-size:.9rem;margin-bottom:2rem}
+.user-btns{display:grid;grid-template-columns:1fr 1fr;gap:.7rem;margin-bottom:1.5rem}
+.user-btn{background:#f5f0eb;border:1.5px solid #e0ddd8;border-radius:12px;padding:.9rem .5rem;cursor:pointer;transition:.2s;text-align:center}
+.user-btn:hover{border-color:#1a6b8a;background:#e8f4f8}
+.user-btn.selected{border-color:#1a6b8a;background:#e8f4f8}
+.user-btn .initials{width:44px;height:44px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:600;font-size:.95rem;margin:0 auto .4rem}
+.user-btn .uname{font-size:.82rem;font-weight:500;color:#333}
+.user-btn .urole{font-size:.72rem;color:#999}
+.pin-row{display:flex;gap:.5rem;justify-content:center;margin-bottom:1rem}
+.pin-dot{width:14px;height:14px;border-radius:50%;border:2px solid #ccc;background:transparent;transition:.2s}
+.pin-dot.filled{background:#1a6b8a;border-color:#1a6b8a}
+.numpad{display:grid;grid-template-columns:repeat(3,1fr);gap:.5rem;max-width:240px;margin:0 auto}
+.num-btn{background:#f5f0eb;border:1px solid #e0ddd8;border-radius:10px;padding:.75rem;font-size:1.1rem;font-weight:500;cursor:pointer;transition:.15s}
+.num-btn:hover{background:#e8f4f8;border-color:#1a6b8a}
+.num-btn:active{transform:scale(.96)}
+.error-msg{color:#c0392b;font-size:.83rem;margin-top:.5rem;min-height:1.2rem}
+
+/* Cal */
+.cal-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem}
+.cal-header button{background:none;border:1px solid #ddd;border-radius:8px;padding:.35rem .8rem;cursor:pointer;font-size:.9rem}
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:3px}
+.cal-day-name{text-align:center;font-size:.75rem;color:#888;padding:.3rem 0;font-weight:500}
+.cal-day{text-align:center;padding:.55rem .2rem;border-radius:8px;font-size:.88rem;transition:.15s}
+.cal-day.clickable{cursor:pointer}
+.cal-day.clickable:hover:not(.booked){background:#e8f4f8}
+.cal-day.empty,.cal-day.past{color:#ccc}
+.cal-day.booked{background:#fde8e8;color:#c0392b;font-weight:500}
+.cal-day.selected{background:#1a6b8a;color:#fff;font-weight:600}
+.cal-day.in-range{background:#d0eaf4;color:#1a6b8a}
+.cal-day.today{font-weight:700;text-decoration:underline}
+.legend{display:flex;gap:1rem;flex-wrap:wrap;margin-top:.8rem}
+.legend span{display:flex;align-items:center;gap:.4rem;font-size:.8rem;color:#555}
+.legend-dot{width:14px;height:14px;border-radius:4px}
+
+/* Form */
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:.9rem}
+@media(max-width:500px){.form-grid{grid-template-columns:1fr}}
+label{display:block;font-size:.82rem;color:#555;margin-bottom:.25rem;font-weight:500}
+input,select,textarea{width:100%;padding:.6rem .8rem;border:1px solid #d8d4cf;border-radius:8px;font-size:.93rem;font-family:inherit;transition:.15s}
+input:focus,select:focus,textarea:focus{outline:none;border-color:#1a6b8a;box-shadow:0 0 0 3px rgba(26,107,138,.12)}
+.form-full{grid-column:1/-1}
+.btn{background:#1a6b8a;color:#fff;border:none;border-radius:10px;padding:.75rem 1.8rem;font-size:1rem;font-weight:500;cursor:pointer;transition:.2s;width:100%;margin-top:.5rem}
+.btn:hover{background:#145870}
+.btn-outline{background:#fff;color:#1a6b8a;border:1.5px solid #1a6b8a}
+.btn-outline:hover{background:#e8f4f8}
+.btn-sm{width:auto;padding:.4rem 1rem;font-size:.85rem;margin-top:0}
+.price-box{background:#f0f8fc;border-radius:10px;padding:1rem;margin:.8rem 0}
+.price-row{display:flex;justify-content:space-between;font-size:.9rem;padding:.25rem 0}
+.price-row.total{font-weight:700;font-size:1.05rem;border-top:1px solid #c8e4ef;margin-top:.4rem;padding-top:.5rem}
+.info-grid{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
+@media(max-width:500px){.info-grid{grid-template-columns:1fr}}
+.feature{display:flex;gap:.7rem;align-items:flex-start;padding:.5rem 0}
+.icon{font-size:1.3rem;flex-shrink:0}
+.toast{position:fixed;bottom:1.5rem;right:1.5rem;background:#1a6b8a;color:#fff;padding:1rem 1.4rem;border-radius:12px;font-size:.93rem;z-index:999;transform:translateY(100px);opacity:0;transition:.3s;max-width:320px}
+.toast.show{transform:none;opacity:1}
+.toast.error{background:#c0392b}
+.booking-item{border:1px solid #e8e4df;border-radius:10px;padding:1rem;margin-bottom:.8rem;display:flex;justify-content:space-between;align-items:center;gap:.8rem;flex-wrap:wrap}
+.status-badge{font-size:.75rem;padding:.2rem .7rem;border-radius:20px;font-weight:500}
+.status-confirmed{background:#d4edda;color:#1e7e34}
+.status-pending{background:#fff3cd;color:#856404}
+.status-blocked{background:#f8d7da;color:#721c24}
+.del-btn{background:none;border:1px solid #e0ddd8;border-radius:8px;padding:.3rem .7rem;cursor:pointer;font-size:.82rem;color:#888}
+.del-btn:hover{background:#fde8e8;color:#c0392b;border-color:#f5c6cb}
+.summary-row{display:flex;justify-content:space-between;padding:.4rem 0;font-size:.9rem;border-bottom:1px solid #f0ece8}
+.tabs{display:flex;gap:0;border-bottom:1px solid #e8e4df;margin-bottom:1.2rem;flex-wrap:wrap}
+.tab{background:none;border:none;padding:.6rem 1.1rem;font-size:.88rem;cursor:pointer;color:#777;border-bottom:2px solid transparent;transition:.15s}
+.tab.active{color:#1a6b8a;border-bottom-color:#1a6b8a;font-weight:500}
+.section{display:none}.section.active{display:block}
+.price-edit-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:.8rem;margin-bottom:.8rem}
+@media(max-width:480px){.price-edit-grid{grid-template-columns:1fr}}
+.price-card{background:#f8f6f2;border-radius:10px;padding:1rem;border:1px solid #e8e4df}
+.price-card label{font-size:.78rem;color:#888;margin-bottom:.3rem}
+.price-card input{font-size:1.1rem;font-weight:600;color:#1a6b8a;border:none;border-bottom:1.5px solid #d8d4cf;border-radius:0;padding:.2rem .4rem;background:transparent}
+.price-card input:focus{border-bottom-color:#1a6b8a;box-shadow:none}
+.price-card .months{font-size:.75rem;color:#999;margin-top:.3rem}
+.readonly-notice{background:#f8f6f2;border-radius:10px;padding:1rem 1.2rem;font-size:.88rem;color:#777;border:1px solid #e8e4df;display:flex;gap:.6rem;align-items:center}
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="login-screen" class="login-wrap">
+  <div class="login-card">
+    <div style="font-size:2.2rem;margin-bottom:.5rem">☀️</div>
+    <h1>Sol i Torremolinos</h1>
+    <p>Logg inn for å se bookinger</p>
+    <div class="user-btns" id="user-btns"></div>
+    <div id="pin-section" style="display:none">
+      <p style="font-size:.82rem;color:#888;margin-bottom:.8rem" id="pin-label">Skriv inn PIN</p>
+      <div class="pin-row" id="pin-dots"></div>
+      <div class="numpad" id="numpad"></div>
+      <p class="error-msg" id="pin-error"></p>
+      <button style="background:none;border:none;color:#aaa;font-size:.8rem;cursor:pointer;margin-top:.5rem" onclick="resetLogin()">← Velg annen bruker</button>
+    </div>
+  </div>
+</div>
+
+<!-- APP -->
+<div id="app" style="display:none">
+  <div class="hero">
+    <h1>☀️ Sol i Torremolinos</h1>
+    <p>Leilighet · Costa del Sol, Spania</p>
+    <div style="margin-top:1rem">
+      <span class="badge">🏖️ 350m til stranden</span>
+      <span class="badge">🏊 Felles basseng</span>
+      <span class="badge">🚗 Parkering</span>
+      <span class="badge">🛏️ 2 soverom</span>
+      <span class="badge">❄️ Klima</span>
+    </div>
+  </div>
+
+  <div class="user-bar">
+    <div class="user-chip" id="user-chip-bar"></div>
+    <button class="btn btn-outline btn-sm" style="margin:0" onclick="logout()">Logg ut</button>
+  </div>
+
+  <nav id="main-nav">
+    <button class="active" onclick="showPage('cal',this)">Kalender</button>
+    <button onclick="showPage('bookings',this)">Bookinger</button>
+    <button onclick="showPage('info',this)">Om leiligheten</button>
+    <button id="admin-nav-btn" style="display:none" onclick="showPage('admin',this)">Admin ⚙️</button>
+  </nav>
+
+  <!-- KALENDER -->
+  <div id="page-cal" class="page active">
+    <div class="card">
+      <h2>Kalender</h2>
+      <div class="cal-header">
+        <button onclick="changeMonth(-1)">&#8592; Forrige</button>
+        <span id="cal-title" style="font-weight:600;font-size:1rem"></span>
+        <button onclick="changeMonth(1)">Neste &#8594;</button>
+      </div>
+      <div class="cal-grid" id="cal-grid"></div>
+      <div class="legend">
+        <span><div class="legend-dot" style="background:#fde8e8;border:1px solid #f5c6cb"></div> Opptatt</span>
+        <span><div class="legend-dot" style="background:#d0eaf4;border:1px solid #a8d4e8"></div> Valgt periode</span>
+      </div>
+      <div id="date-summary" style="margin-top:.9rem;font-size:.9rem;color:#1a6b8a;font-weight:500;min-height:1.3rem"></div>
+    </div>
+
+    <!-- Bestillingsskjema – kun admin -->
+    <div id="booking-form-section" style="display:none">
+      <div class="card">
+        <h2>Ny bestilling</h2>
+        <div class="form-grid">
+          <div><label>Hvem bestiller</label>
+            <select id="f-who">
+              <option value="SB">Svein Bø</option>
+              <option value="LAB">Lars Arne Bø</option>
+              <option value="AMB">Alf Marlon Bø</option>
+              <option value="SMB">Stig Martin Bø</option>
+            </select>
+          </div>
+          <div><label>Antall gjester</label>
+            <select id="f-guests"><option>1</option><option>2</option><option selected>3</option><option>4</option><option>5</option><option>6</option></select>
+          </div>
+          <div><label>Telefon</label><input type="tel" id="f-phone" placeholder="+47 900 00 000"></div>
+          <div><label>E-post</label><input type="email" id="f-email" placeholder="epost@example.com"></div>
+          <div class="form-full"><label>Melding / ønsker</label><textarea id="f-msg" rows="2" placeholder="Spesielle ønsker, ankomstinfo..."></textarea></div>
+        </div>
+        <div class="price-box" id="price-box"></div>
+        <div style="display:flex;gap:.8rem;margin-top:.3rem">
+          <button class="btn" onclick="submitBooking()">Lagre bestilling</button>
+          <button class="btn btn-outline" onclick="clearSelection()">Avbryt</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Skrivebeskyttet melding for ikke-admin -->
+    <div id="readonly-notice" style="display:none">
+      <div class="readonly-notice">
+        <span style="font-size:1.2rem">ℹ️</span>
+        <span>Kun Svein kan opprette bookinger. Kontakt ham for å reservere datoer.</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- BOOKINGER -->
+  <div id="page-bookings" class="page">
+    <div class="card">
+      <h2>Alle bookinger</h2>
+      <div id="all-bookings-list"></div>
+    </div>
+  </div>
+
+  <!-- INFO -->
+  <div id="page-info" class="page">
+    <div class="card">
+      <h2>Om leiligheten</h2>
+      <p style="color:#555;line-height:1.7;margin-bottom:1rem">Romslig og lys 3-roms leilighet i Torremolinos, kun 350 meter fra stranden og 150 meter fra den livlige hovedgaten. Leiligheten har alt du trenger for en perfekt strandferie på Costa del Sol.</p>
+      <div class="info-grid">
+        <div>
+          <h3>Fasiliteter</h3>
+          <div class="feature"><span class="icon">🛏️</span><div><b>Soverom 1:</b> Dobbeltseng</div></div>
+          <div class="feature"><span class="icon">🛏️</span><div><b>Soverom 2:</b> Dobbeltseng</div></div>
+          <div class="feature"><span class="icon">🚿</span><div><b>Bad:</b> Fullt bad med dusj</div></div>
+          <div class="feature"><span class="icon">🍳</span><div><b>Kjøkken:</b> Fullt utstyrt</div></div>
+          <div class="feature"><span class="icon">📺</span><div><b>Stue:</b> TV, sofa</div></div>
+          <div class="feature"><span class="icon">🌅</span><div><b>Balkong:</b> Med havutsikt</div></div>
+          <div class="feature"><span class="icon">❄️</span><div><b>Klima:</b> Kjøling og varme</div></div>
+        </div>
+        <div>
+          <h3>Praktisk info</h3>
+          <div class="feature"><span class="icon">🏖️</span><div>350 m til stranden</div></div>
+          <div class="feature"><span class="icon">🛍️</span><div>150 m til hovedgaten</div></div>
+          <div class="feature"><span class="icon">📍</span><div>Calle Los Nidos 12, Torremolinos</div></div>
+          <div class="feature"><span class="icon">✈️</span><div>20 min fra Málaga lufthavn</div></div>
+          <div class="feature"><span class="icon">🔑</span><div>Innsjekk fra kl. 15:00</div></div>
+          <div class="feature"><span class="icon">🏠</span><div>Utsjekk innen kl. 11:00</div></div>
+          <div class="feature"><span class="icon">🐾</span><div>Ikke tillatt med kjæledyr</div></div>
+          <div class="feature"><span class="icon">🚭</span><div>Røykfritt innendørs</div></div>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <h2>Priser</h2>
+      <div id="price-display"></div>
+      <p style="font-size:.82rem;color:#888;margin-top:.8rem">Minimumsleie 4 netter. Depositum: kr 2 000 (tilbakebetales).</p>
+    </div>
+  </div>
+
+  <!-- ADMIN -->
+  <div id="page-admin" class="page">
+    <div class="card">
+      <h3>Oversikt</h3>
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:.8rem">
+        <div style="background:#f0f8fc;border-radius:10px;padding:.8rem;text-align:center">
+          <div style="font-size:1.6rem;font-weight:700;color:#1a6b8a" id="stat-total">0</div>
+          <div style="font-size:.78rem;color:#666">Bestillinger</div>
+        </div>
+        <div style="background:#f0faf4;border-radius:10px;padding:.8rem;text-align:center">
+          <div style="font-size:1.6rem;font-weight:700;color:#1e7e34" id="stat-nights">0</div>
+          <div style="font-size:.78rem;color:#666">Netter booket</div>
+        </div>
+        <div style="background:#fff8e8;border-radius:10px;padding:.8rem;text-align:center">
+          <div style="font-size:1.6rem;font-weight:700;color:#856404" id="stat-revenue">kr 0</div>
+          <div style="font-size:.78rem;color:#666">Estimert inntekt</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="tabs">
+        <button class="tab active" onclick="switchTab('abookings',this)">Bookinger</button>
+        <button class="tab" onclick="switchTab('prices',this)">Priser</button>
+        <button class="tab" onclick="switchTab('block',this)">Blokker datoer</button>
+      </div>
+
+      <div id="tab-abookings" class="section active">
+        <div id="admin-booking-list"></div>
+      </div>
+
+      <div id="tab-prices" class="section">
+        <p style="font-size:.85rem;color:#666;margin-bottom:1rem">Endre priser per natt for hver sesong.</p>
+        <div class="price-edit-grid">
+          <div class="price-card"><label>LAVSESONG (kr/natt)</label><input type="number" id="p-low" min="0" step="50"><div class="months">Jan–Apr, Nov–Des</div></div>
+          <div class="price-card"><label>MIDTSESONG (kr/natt)</label><input type="number" id="p-mid" min="0" step="50"><div class="months">Mai–Jun, Sep–Okt</div></div>
+          <div class="price-card"><label>HØYSESONG (kr/natt)</label><input type="number" id="p-high" min="0" step="50"><div class="months">Jul–Aug</div></div>
+        </div>
+        <div class="price-edit-grid" style="grid-template-columns:1fr 1fr">
+          <div class="price-card"><label>RENGJØRING (kr engangs)</label><input type="number" id="p-clean" min="0" step="50"><div class="months">Per opphold</div></div>
+          <div class="price-card"><label>MIN. LEIENETTER</label><input type="number" id="p-minnights" min="1" step="1"><div class="months">Minimum netter</div></div>
+        </div>
+        <button class="btn btn-sm" style="margin-top:.5rem" onclick="savePrices()">Lagre priser</button>
+      </div>
+
+      <div id="tab-block" class="section">
+        <p style="font-size:.85rem;color:#666;margin-bottom:1rem">Blokker datoer for vedlikehold eller eget bruk.</p>
+        <div class="form-grid">
+          <div><label>Fra dato</label><input type="date" id="b-from"></div>
+          <div><label>Til dato</label><input type="date" id="b-to"></div>
+          <div class="form-full"><label>Årsak</label><input type="text" id="b-reason" placeholder="f.eks. Vedlikehold, Eget bruk..."></div>
+        </div>
+        <button class="btn btn-sm" style="margin-top:.5rem" onclick="addBlock()">Blokker datoer</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ─── Brukere ──────────────────────────────────────────────────────────────
+const USERS=[
+  {id:'SB', name:'Svein Bø',       initials:'SB',  pin:'7392',role:'admin',color:'#1a6b8a',bg:'#e8f4f8'},
+  {id:'LAB',name:'Lars Arne Bø',   initials:'LAB', pin:'4815',role:'user', color:'#2d6a4f',bg:'#d8f3dc'},
+  {id:'AMB',name:'Alf Marlon Bø',  initials:'AMB', pin:'6271',role:'user', color:'#6d4c41',bg:'#f3e5d8'},
+  {id:'SMB',name:'Stig Martin Bø', initials:'SMB', pin:'9538',role:'user', color:'#5e35b1',bg:'#ede7f6'},
+];
+
+let currentUser=null,selectedUserId=null,pinEntry='';
+
+// ─── State ────────────────────────────────────────────────────────────────
+let prices=JSON.parse(localStorage.getItem('trm-prices')||'null')||{low:900,mid:1200,high:1600,clean:550,minNights:4};
+let bookings=JSON.parse(localStorage.getItem('trm-bookings')||'null');
+if(!bookings){
+  const y=new Date().getFullYear();
+  bookings=[
+    {id:1,userId:'LAB',name:'Lars Arne Bø',email:'',phone:'',guests:4,from:y+'-07-10',to:y+'-07-20',nights:10,msg:'',status:'confirmed',revenue:12550},
+    {id:2,userId:'SB',name:'Blokk: Vedlikehold',email:'',phone:'',guests:0,from:y+'-06-01',to:y+'-06-05',nights:4,msg:'',status:'blocked',revenue:0}
+  ];
+  save();
+}
+function save(){
+  localStorage.setItem('trm-bookings',JSON.stringify(bookings));
+  localStorage.setItem('trm-prices',JSON.stringify(prices));
+}
+
+// ─── Login ────────────────────────────────────────────────────────────────
+function buildLoginUI(){
+  const btns=document.getElementById('user-btns');
+  btns.innerHTML='';
+  USERS.forEach(u=>{
+    const b=document.createElement('button');
+    b.className='user-btn';b.id='ubtn-'+u.id;
+    b.onclick=()=>selectUser(u.id);
+    b.innerHTML=`<div class="initials" style="background:${u.bg};color:${u.color}">${u.initials}</div>
+      <div class="uname">${u.name.split(' ')[0]}</div>
+      <div class="urole">${u.role==='admin'?'Admin':'Bruker'}</div>`;
+    btns.appendChild(b);
+  });
+}
+
+function selectUser(id){
+  selectedUserId=id;pinEntry='';
+  document.querySelectorAll('.user-btn').forEach(b=>b.classList.remove('selected'));
+  document.getElementById('ubtn-'+id).classList.add('selected');
+  const u=USERS.find(x=>x.id===id);
+  document.getElementById('pin-label').textContent=`PIN for ${u.name.split(' ')[0]}`;
+  document.getElementById('pin-section').style.display='block';
+  document.getElementById('pin-error').textContent='';
+  buildNumpad();updatePinDots();
+}
+
+function buildNumpad(){
+  const np=document.getElementById('numpad');np.innerHTML='';
+  [1,2,3,4,5,6,7,8,9,'',0,'⌫'].forEach(k=>{
+    const b=document.createElement('button');b.className='num-btn';b.textContent=k;
+    if(k==='')b.style.visibility='hidden';
+    else b.onclick=()=>pinPress(k);
+    np.appendChild(b);
+  });
+}
+
+function pinPress(k){
+  if(k==='⌫')pinEntry=pinEntry.slice(0,-1);
+  else if(pinEntry.length<4)pinEntry+=k;
+  updatePinDots();
+  if(pinEntry.length===4)setTimeout(checkPin,120);
+}
+
+function updatePinDots(){
+  const dots=document.getElementById('pin-dots');dots.innerHTML='';
+  for(let i=0;i<4;i++){
+    const d=document.createElement('div');
+    d.className='pin-dot'+(i<pinEntry.length?' filled':'');
+    dots.appendChild(d);
+  }
+}
+
+function checkPin(){
+  const u=USERS.find(x=>x.id===selectedUserId);
+  if(pinEntry===u.pin){
+    currentUser=u;
+    document.getElementById('login-screen').style.display='none';
+    document.getElementById('app').style.display='block';
+    initApp();
+  } else {
+    document.getElementById('pin-error').textContent='Feil PIN, prøv igjen';
+    pinEntry='';updatePinDots();
+  }
+}
+
+function resetLogin(){
+  selectedUserId=null;pinEntry='';
+  document.getElementById('pin-section').style.display='none';
+  document.querySelectorAll('.user-btn').forEach(b=>b.classList.remove('selected'));
+}
+
+function logout(){
+  currentUser=null;selectedUserId=null;pinEntry='';
+  selStart=null;selEnd=null;
+  document.getElementById('app').style.display='none';
+  document.getElementById('login-screen').style.display='flex';
+  document.getElementById('pin-section').style.display='none';
+  document.querySelectorAll('.user-btn').forEach(b=>b.classList.remove('selected'));
+}
+
+function initApp(){
+  const u=currentUser;
+  const chip=document.getElementById('user-chip-bar');
+  chip.className='user-chip'+(u.role==='admin'?' admin-chip':'');
+  chip.innerHTML=`<span style="width:28px;height:28px;border-radius:50%;background:${u.bg};color:${u.color};display:inline-flex;align-items:center;justify-content:center;font-weight:600;font-size:.78rem">${u.initials}</span> ${u.name}${u.role==='admin'?' · Admin':''}`;
+  document.getElementById('admin-nav-btn').style.display=u.role==='admin'?'block':'none';
+  renderCal();renderPriceDisplay();renderAllBookings();
+  if(u.role==='admin')renderAdmin();
+  showPage('cal',document.querySelector('nav button'));
+}
+
+// ─── Calendar ─────────────────────────────────────────────────────────────
+let calYear=new Date().getFullYear(),calMonth=new Date().getMonth();
+let selStart=null,selEnd=null;
+const MONTHS=['Januar','Februar','Mars','April','Mai','Juni','Juli','August','September','Oktober','November','Desember'];
+const DAYS=['Ma','Ti','On','To','Fr','Lø','Sø'];
+
+function blockedSet(){
+  const s=new Set();
+  bookings.forEach(b=>{let d=new Date(b.from),e=new Date(b.to);while(d<e){s.add(d.toISOString().split('T')[0]);d.setDate(d.getDate()+1);}});
+  return s;
+}
+
+function renderCal(){
+  const blocked=blockedSet(),isAdmin=currentUser&&currentUser.role==='admin';
+  const today=new Date();today.setHours(0,0,0,0);
+  document.getElementById('cal-title').textContent=MONTHS[calMonth]+' '+calYear;
+  const g=document.getElementById('cal-grid');g.innerHTML='';
+  DAYS.forEach(d=>{const e=document.createElement('div');e.className='cal-day-name';e.textContent=d;g.appendChild(e);});
+  const first=new Date(calYear,calMonth,1);
+  for(let i=0;i<(first.getDay()+6)%7;i++){const e=document.createElement('div');e.className='cal-day empty';g.appendChild(e);}
+  const dim=new Date(calYear,calMonth+1,0).getDate();
+  for(let d=1;d<=dim;d++){
+    const el=document.createElement('div');
+    const ds=calYear+'-'+String(calMonth+1).padStart(2,'0')+'-'+String(d).padStart(2,'0');
+    const dObj=new Date(calYear,calMonth,d);
+    el.className='cal-day';el.textContent=d;
+    if(dObj<today)el.classList.add('past');
+    else if(blocked.has(ds))el.classList.add('booked');
+    else if(isAdmin){
+      el.classList.add('clickable');
+      if(selStart&&selEnd){
+        if(ds===selStart||ds===selEnd)el.classList.add('selected');
+        else if(dObj>new Date(selStart)&&dObj<new Date(selEnd))el.classList.add('in-range');
+      } else if(selStart&&ds===selStart)el.classList.add('selected');
+      el.addEventListener('click',()=>pickDate(ds,blocked));
+    }
+    if(dObj.toDateString()===today.toDateString())el.classList.add('today');
+    g.appendChild(el);
+  }
+  updateSummary();
+}
+
+function pickDate(ds,blocked){
+  if(!selStart||selEnd){selStart=ds;selEnd=null;}
+  else{
+    if(ds<=selStart){selStart=ds;selEnd=null;}
+    else{
+      let ok=true,cur=new Date(selStart);cur.setDate(cur.getDate()+1);
+      while(cur<new Date(ds)){if(blocked.has(cur.toISOString().split('T')[0])){ok=false;break;}cur.setDate(cur.getDate()+1);}
+      if(!ok){showToast('Perioden inneholder opptatte datoer','error');selStart=ds;selEnd=null;}
+      else selEnd=ds;
+    }
+  }
+  renderCal();
+}
+
+function priceForDate(d){const m=d.getMonth();if(m<=3||m>=10)return prices.low;if(m<=5||m===8)return prices.mid;return prices.high;}
+function calcStay(s,e){let total=0,nights=0,cur=new Date(s);const end=new Date(e);while(cur<end){total+=priceForDate(cur);nights++;cur.setDate(cur.getDate()+1);}return{total,nights};}
+
+function updateSummary(){
+  const el=document.getElementById('date-summary');
+  const fs=document.getElementById('booking-form-section');
+  const rn=document.getElementById('readonly-notice');
+  const isAdmin=currentUser&&currentUser.role==='admin';
+  if(selStart&&selEnd){
+    const{total,nights}=calcStay(selStart,selEnd);
+    if(nights<prices.minNights){el.textContent=`Minimumsleie er ${prices.minNights} netter.`;el.style.color='#c0392b';if(fs)fs.style.display='none';return;}
+    el.style.color='#1a6b8a';
+    el.textContent=`Innsjekk: ${fmt(selStart)}  →  Utsjekk: ${fmt(selEnd)}  (${nights} netter)`;
+    if(isAdmin&&fs){
+      fs.style.display='block';
+      if(rn)rn.style.display='none';
+      document.getElementById('price-box').innerHTML=`
+        <div class="price-row"><span>Leie (${nights} netter)</span><span>kr ${total.toLocaleString('no-NO')}</span></div>
+        <div class="price-row"><span>Rengjøring</span><span>kr ${prices.clean.toLocaleString('no-NO')}</span></div>
+        <div class="price-row total"><span>Totalt</span><span>kr ${(total+prices.clean).toLocaleString('no-NO')}</span></div>`;
+    } else if(!isAdmin&&rn){
+      rn.style.display='block';
+      if(fs)fs.style.display='none';
+    }
+  } else if(selStart){
+    el.style.color='#1a6b8a';el.textContent=`Innsjekk: ${fmt(selStart)}  —  Velg utsjekk-dato`;
+    if(fs)fs.style.display='none';if(rn)rn.style.display='none';
+  } else {
+    el.textContent='';
+    if(fs)fs.style.display='none';if(rn)rn.style.display='none';
+  }
+}
+
+function clearSelection(){selStart=null;selEnd=null;renderCal();}
+function fmt(s){if(!s)return'';const[y,m,d]=s.split('-');return d+'.'+m+'.'+y;}
+function changeMonth(dir){calMonth+=dir;if(calMonth>11){calMonth=0;calYear++;}if(calMonth<0){calMonth=11;calYear--;}renderCal();}
+
+// ─── Submit ───────────────────────────────────────────────────────────────
+function submitBooking(){
+  if(!selStart||!selEnd)return showToast('Velg datoer','error');
+  const whoId=document.getElementById('f-who').value;
+  const who=USERS.find(u=>u.id===whoId);
+  const{total,nights}=calcStay(selStart,selEnd);
+  if(nights<prices.minNights)return showToast(`Minimum ${prices.minNights} netter`,'error');
+  bookings.push({id:Date.now(),userId:whoId,userInitials:who.initials,name:who.name,
+    email:document.getElementById('f-email').value,phone:document.getElementById('f-phone').value,
+    guests:document.getElementById('f-guests').value,from:selStart,to:selEnd,nights,
+    msg:document.getElementById('f-msg').value,status:'confirmed',revenue:total+prices.clean});
+  save();selStart=null;selEnd=null;
+  renderCal();renderAllBookings();renderAdmin();
+  document.getElementById('booking-form-section').style.display='none';
+  showToast('Bestilling lagret!');
+}
+
+// ─── Alle bookinger ───────────────────────────────────────────────────────
+function renderAllBookings(){
+  const list=document.getElementById('all-bookings-list');if(!list)return;
+  const real=bookings.filter(b=>b.status!=='blocked').sort((a,b)=>a.from.localeCompare(b.from));
+  if(!real.length){list.innerHTML='<p style="color:#aaa;font-size:.9rem">Ingen bookinger ennå.</p>';return;}
+  list.innerHTML='';
+  real.forEach(b=>{
+    const u=USERS.find(x=>x.id===b.userId)||{initials:'?',color:'#888',bg:'#eee'};
+    const badge=b.status==='confirmed'?'status-confirmed':'status-pending';
+    const label=b.status==='confirmed'?'Bekreftet':'Venter';
+    const el=document.createElement('div');el.className='booking-item';
+    el.innerHTML=`
+      <div style="display:flex;align-items:center;gap:.7rem;flex:1;min-width:0">
+        <div style="width:36px;height:36px;border-radius:50%;background:${u.bg};color:${u.color};display:flex;align-items:center;justify-content:center;font-weight:600;font-size:.75rem;flex-shrink:0">${u.initials}</div>
+        <div>
+          <div style="font-weight:500">${b.name}</div>
+          <div style="font-size:.82rem;color:#666">${fmt(b.from)} → ${fmt(b.to)} · ${b.nights} netter · ${b.guests} gjester</div>
+          ${b.revenue?`<div style="font-size:.82rem;color:#1e7e34;font-weight:500">kr ${b.revenue.toLocaleString('no-NO')}</div>`:''}
+        </div>
+      </div>
+      <span class="status-badge ${badge}">${label}</span>`;
+    list.appendChild(el);
+  });
+}
+
+// ─── Admin ────────────────────────────────────────────────────────────────
+function renderAdmin(){
+  if(!currentUser||currentUser.role!=='admin')return;
+  const real=bookings.filter(b=>b.status!=='blocked');
+  document.getElementById('stat-total').textContent=real.length;
+  document.getElementById('stat-nights').textContent=real.reduce((a,b)=>a+(b.nights||0),0);
+  document.getElementById('stat-revenue').textContent='kr '+real.reduce((a,b)=>a+(b.revenue||0),0).toLocaleString('no-NO');
+  const list=document.getElementById('admin-booking-list');list.innerHTML='';
+  if(!bookings.length){list.innerHTML='<p style="color:#aaa;font-size:.9rem">Ingen bookinger.</p>';return;}
+  bookings.slice().sort((a,b)=>a.from.localeCompare(b.from)).forEach(b=>{
+    const u=USERS.find(x=>x.id===b.userId)||{initials:'?',color:'#888',bg:'#eee'};
+    const badge=b.status==='confirmed'?'status-confirmed':b.status==='blocked'?'status-blocked':'status-pending';
+    const label=b.status==='confirmed'?'Bekreftet':b.status==='blocked'?'Blokkert':'Venter';
+    const el=document.createElement('div');el.className='booking-item';
+    el.innerHTML=`
+      <div style="display:flex;align-items:center;gap:.7rem;flex:1;min-width:0">
+        <div style="width:36px;height:36px;border-radius:50%;background:${u.bg};color:${u.color};display:flex;align-items:center;justify-content:center;font-weight:600;font-size:.75rem;flex-shrink:0">${u.initials}</div>
+        <div>
+          <div style="font-weight:500">${b.name}</div>
+          <div style="font-size:.82rem;color:#666">${fmt(b.from)} → ${fmt(b.to)} · ${b.nights} netter${b.guests>0?' · '+b.guests+' gjester':''}</div>
+          ${b.revenue?`<div style="font-size:.82rem;color:#1e7e34;font-weight:500">kr ${b.revenue.toLocaleString('no-NO')}</div>`:''}
+        </div>
+      </div>
+      <div style="display:flex;gap:.4rem;align-items:center;flex-wrap:wrap">
+        <span class="status-badge ${badge}">${label}</span>
+        <button class="del-btn" onclick="deleteB(${b.id})">Slett</button>
+      </div>`;
+    list.appendChild(el);
+  });
+  document.getElementById('p-low').value=prices.low;
+  document.getElementById('p-mid').value=prices.mid;
+  document.getElementById('p-high').value=prices.high;
+  document.getElementById('p-clean').value=prices.clean;
+  document.getElementById('p-minnights').value=prices.minNights;
+}
+
+window.deleteB=function(id){
+  bookings=bookings.filter(x=>x.id!==id);
+  save();renderAdmin();renderAllBookings();renderCal();showToast('Booking slettet!');
+};
+
+function savePrices(){
+  prices.low=+document.getElementById('p-low').value||900;
+  prices.mid=+document.getElementById('p-mid').value||1200;
+  prices.high=+document.getElementById('p-high').value||1600;
+  prices.clean=+document.getElementById('p-clean').value||550;
+  prices.minNights=+document.getElementById('p-minnights').value||4;
+  save();renderPriceDisplay();updateSummary();showToast('Priser lagret!');
+}
+
+function renderPriceDisplay(){
+  document.getElementById('price-display').innerHTML=`
+    <div class="summary-row"><span>Lavsesong (jan–apr, nov–des)</span><span><b>kr ${prices.low.toLocaleString('no-NO')}/natt</b></span></div>
+    <div class="summary-row"><span>Midtsesong (mai–jun, sep–okt)</span><span><b>kr ${prices.mid.toLocaleString('no-NO')}/natt</b></span></div>
+    <div class="summary-row"><span>Høysesong (jul–aug)</span><span><b>kr ${prices.high.toLocaleString('no-NO')}/natt</b></span></div>
+    <div class="summary-row"><span>Rengjøringsavgift (engangs)</span><span><b>kr ${prices.clean.toLocaleString('no-NO')}</b></span></div>`;
+}
+
+function addBlock(){
+  const from=document.getElementById('b-from').value;
+  const to=document.getElementById('b-to').value;
+  const reason=document.getElementById('b-reason').value||'Blokkert';
+  if(!from||!to||from>=to)return showToast('Velg gyldige datoer','error');
+  const{nights}=calcStay(from,to);
+  bookings.push({id:Date.now(),userId:'SB',userInitials:'SB',name:'Blokk: '+reason,
+    email:'',phone:'',guests:0,from,to,nights,msg:'',status:'blocked',revenue:0});
+  save();renderAdmin();renderAllBookings();renderCal();showToast('Datoer blokkert!');
+}
+
+function showPage(p,btn){
+  document.querySelectorAll('.page').forEach(e=>e.classList.remove('active'));
+  document.querySelectorAll('nav button').forEach(e=>e.classList.remove('active'));
+  document.getElementById('page-'+p).classList.add('active');
+  if(btn)btn.classList.add('active');
+  if(p==='bookings')renderAllBookings();
+  if(p==='admin')renderAdmin();
+}
+function switchTab(t,btn){
+  document.querySelectorAll('.tab').forEach(e=>e.classList.remove('active'));
+  document.querySelectorAll('.section').forEach(e=>e.classList.remove('active'));
+  btn.classList.add('active');document.getElementById('tab-'+t).classList.add('active');
+}
+function showToast(msg,type=''){
+  const t=document.getElementById('toast');
+  t.textContent=msg;t.className='toast'+(type==='error'?' error':'');
+  t.classList.add('show');setTimeout(()=>t.classList.remove('show'),3500);
+}
+
+buildLoginUI();
+</script>
+</body>
+</html>
