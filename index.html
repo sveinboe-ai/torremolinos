@@ -146,6 +146,7 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:#1a6b8a;box-sh
   <nav>
     <button class="active" onclick="showPage('cal',this)">Kalender</button>
     <button onclick="showPage('bookings',this)">Bookinger</button>
+    <button onclick="showPage('oversikt',this)">Oversikt</button>
     <button onclick="showPage('info',this)">Om leiligheten</button>
     <button id="admin-nav-btn" style="display:none" onclick="showPage('admin',this)">Admin ⚙️</button>
   </nav>
@@ -208,6 +209,21 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:#1a6b8a;box-sh
     <div class="card">
       <h2>Alle bookinger</h2>
       <div id="all-bookings-list"><div class="loading">Laster bookinger...</div></div>
+    </div>
+  </div>
+
+  <!-- OVERSIKT -->
+  <div id="page-oversikt" class="page">
+    <div class="card">
+      <h2>Kalenderoversikt 2026–2033</h2>
+      <p style="font-size:.85rem;color:#666;margin-bottom:1rem">Bytte skjer alltid på lørdag. Ny periode starter lørdag, forrige slutter fredag.</p>
+      <div style="display:flex;gap:1rem;flex-wrap:wrap;margin-bottom:1.5rem">
+        <span style="display:flex;align-items:center;gap:.5rem;font-size:.85rem"><span style="width:16px;height:16px;border-radius:4px;background:#d8f3dc;border:1px solid #74c69d;display:inline-block"></span> Lars Arne Bø (LAB)</span>
+        <span style="display:flex;align-items:center;gap:.5rem;font-size:.85rem"><span style="width:16px;height:16px;border-radius:4px;background:#ede7f6;border:1px solid #9c7fd4;display:inline-block"></span> Stig Martin Bø (SMB)</span>
+        <span style="display:flex;align-items:center;gap:.5rem;font-size:.85rem"><span style="width:16px;height:16px;border-radius:4px;background:#e8f4f8;border:1px solid #74b9d4;display:inline-block"></span> Svein Bø (SB)</span>
+        <span style="display:flex;align-items:center;gap:.5rem;font-size:.85rem"><span style="width:16px;height:16px;border-radius:4px;background:#f3e5d8;border:1px solid #c49a78;display:inline-block"></span> Alf Marlon Bø (AMB)</span>
+      </div>
+      <div id="oversikt-content"></div>
     </div>
   </div>
 
@@ -678,6 +694,7 @@ window.showPage=function(p,btn){
   document.getElementById('page-'+p).classList.add('active');
   if(btn)btn.classList.add('active');
   if(p==='bookings')renderAllBookings();
+  if(p==='oversikt')renderOversikt();
   if(p==='admin')renderAdmin();
 };
 window.switchTab=function(t,btn){
@@ -689,6 +706,127 @@ function showToast(msg,type=''){
   const t=document.getElementById('toast');
   t.textContent=msg; t.className='toast'+(type==='error'?' error':'');
   t.classList.add('show'); setTimeout(()=>t.classList.remove('show'),3500);
+}
+
+// ─── Oversikt ─────────────────────────────────────────────────────────────
+const SCHEDULE=[
+  {year:2026,periode:'Periode 1',fra:'07.03.2026',til:'02.05.2026',bruker:'SMB'},
+  {year:2026,periode:'Periode 2',fra:'02.05.2026',til:'30.05.2026',bruker:'SB'},
+  {year:2026,periode:'Sommer 1',fra:'30.05.2026',til:'20.06.2026',bruker:'AMB'},
+  {year:2026,periode:'Sommer 2',fra:'20.06.2026',til:'18.07.2026',bruker:'SMB'},
+  {year:2026,periode:'Sommer 3',fra:'18.07.2026',til:'08.08.2026',bruker:'LAB'},
+  {year:2026,periode:'Sommer 4',fra:'08.08.2026',til:'04.09.2026',bruker:'SB'},
+  {year:2026,periode:'Periode 4A',fra:'05.09.2026',til:'20.11.2026',bruker:'AMB'},
+  {year:2026,periode:'Periode 4B',fra:'21.11.2026',til:'05.03.2027',bruker:'LAB'},
+  {year:2027,periode:'Periode 1',fra:'06.03.2027',til:'01.05.2027',bruker:'SB'},
+  {year:2027,periode:'Periode 2',fra:'01.05.2027',til:'05.06.2027',bruker:'AMB'},
+  {year:2027,periode:'Sommer 1',fra:'05.06.2027',til:'26.06.2027',bruker:'LAB'},
+  {year:2027,periode:'Sommer 2',fra:'26.06.2027',til:'17.07.2027',bruker:'SB'},
+  {year:2027,periode:'Sommer 3',fra:'17.07.2027',til:'07.08.2027',bruker:'SMB'},
+  {year:2027,periode:'Sommer 4',fra:'07.08.2027',til:'04.09.2027',bruker:'AMB'},
+  {year:2027,periode:'Periode 4A',fra:'04.09.2027',til:'20.11.2027',bruker:'LAB'},
+  {year:2027,periode:'Periode 4B',fra:'20.11.2027',til:'04.03.2028',bruker:'SMB'},
+  {year:2028,periode:'Periode 1',fra:'04.03.2028',til:'29.04.2028',bruker:'AMB'},
+  {year:2028,periode:'Periode 2',fra:'29.04.2028',til:'03.06.2028',bruker:'LAB'},
+  {year:2028,periode:'Sommer 1',fra:'03.06.2028',til:'24.06.2028',bruker:'SMB'},
+  {year:2028,periode:'Sommer 2',fra:'24.06.2028',til:'15.07.2028',bruker:'AMB'},
+  {year:2028,periode:'Sommer 3',fra:'15.07.2028',til:'05.08.2028',bruker:'SB'},
+  {year:2028,periode:'Sommer 4',fra:'05.08.2028',til:'02.09.2028',bruker:'LAB'},
+  {year:2028,periode:'Periode 4A',fra:'02.09.2028',til:'18.11.2028',bruker:'SMB'},
+  {year:2028,periode:'Periode 4B',fra:'18.11.2028',til:'03.03.2029',bruker:'SB'},
+  {year:2029,periode:'Periode 1',fra:'03.03.2029',til:'28.04.2029',bruker:'LAB'},
+  {year:2029,periode:'Periode 2',fra:'28.04.2029',til:'02.06.2029',bruker:'SMB'},
+  {year:2029,periode:'Sommer 1',fra:'02.06.2029',til:'23.06.2029',bruker:'SB'},
+  {year:2029,periode:'Sommer 2',fra:'23.06.2029',til:'14.07.2029',bruker:'LAB'},
+  {year:2029,periode:'Sommer 3',fra:'14.07.2029',til:'04.08.2029',bruker:'AMB'},
+  {year:2029,periode:'Sommer 4',fra:'04.08.2029',til:'01.09.2029',bruker:'SMB'},
+  {year:2029,periode:'Periode 4A',fra:'01.09.2029',til:'17.11.2029',bruker:'SB'},
+  {year:2029,periode:'Periode 4B',fra:'17.11.2029',til:'02.03.2030',bruker:'AMB'},
+  {year:2030,periode:'Periode 1',fra:'02.03.2030',til:'27.04.2030',bruker:'SMB'},
+  {year:2030,periode:'Periode 2',fra:'27.04.2030',til:'01.06.2030',bruker:'SB'},
+  {year:2030,periode:'Sommer 1',fra:'01.06.2030',til:'22.06.2030',bruker:'AMB'},
+  {year:2030,periode:'Sommer 2',fra:'22.06.2030',til:'13.07.2030',bruker:'SMB'},
+  {year:2030,periode:'Sommer 3',fra:'13.07.2030',til:'03.08.2030',bruker:'LAB'},
+  {year:2030,periode:'Sommer 4',fra:'03.08.2030',til:'31.08.2030',bruker:'SB'},
+  {year:2030,periode:'Periode 4A',fra:'31.08.2030',til:'16.11.2030',bruker:'AMB'},
+  {year:2030,periode:'Periode 4B',fra:'16.11.2030',til:'01.03.2031',bruker:'LAB'},
+  {year:2031,periode:'Periode 1',fra:'01.03.2031',til:'26.04.2031',bruker:'SB'},
+  {year:2031,periode:'Periode 2',fra:'26.04.2031',til:'07.06.2031',bruker:'AMB'},
+  {year:2031,periode:'Sommer 1',fra:'07.06.2031',til:'28.06.2031',bruker:'LAB'},
+  {year:2031,periode:'Sommer 2',fra:'28.06.2031',til:'19.07.2031',bruker:'SB'},
+  {year:2031,periode:'Sommer 3',fra:'19.07.2031',til:'09.08.2031',bruker:'SMB'},
+  {year:2031,periode:'Sommer 4',fra:'09.08.2031',til:'06.09.2031',bruker:'AMB'},
+  {year:2031,periode:'Periode 4A',fra:'06.09.2031',til:'22.11.2031',bruker:'LAB'},
+  {year:2031,periode:'Periode 4B',fra:'22.11.2031',til:'06.03.2032',bruker:'SMB'},
+  {year:2032,periode:'Periode 1',fra:'06.03.2032',til:'01.05.2032',bruker:'AMB'},
+  {year:2032,periode:'Periode 2',fra:'01.05.2032',til:'05.06.2032',bruker:'LAB'},
+  {year:2032,periode:'Sommer 1',fra:'05.06.2032',til:'26.06.2032',bruker:'SMB'},
+  {year:2032,periode:'Sommer 2',fra:'26.06.2032',til:'17.07.2032',bruker:'AMB'},
+  {year:2032,periode:'Sommer 3',fra:'17.07.2032',til:'07.08.2032',bruker:'SB'},
+  {year:2032,periode:'Sommer 4',fra:'07.08.2032',til:'04.09.2032',bruker:'LAB'},
+  {year:2032,periode:'Periode 4A',fra:'04.09.2032',til:'20.11.2032',bruker:'SMB'},
+  {year:2032,periode:'Periode 4B',fra:'20.11.2032',til:'05.03.2033',bruker:'SB'},
+  {year:2033,periode:'Periode 1',fra:'05.03.2033',til:'30.04.2033',bruker:'LAB'},
+  {year:2033,periode:'Periode 2',fra:'30.04.2033',til:'04.06.2033',bruker:'SMB'},
+  {year:2033,periode:'Sommer 1',fra:'04.06.2033',til:'25.06.2033',bruker:'SB'},
+  {year:2033,periode:'Sommer 2',fra:'25.06.2033',til:'16.07.2033',bruker:'LAB'},
+  {year:2033,periode:'Sommer 3',fra:'16.07.2033',til:'06.08.2033',bruker:'AMB'},
+  {year:2033,periode:'Sommer 4',fra:'06.08.2033',til:'03.09.2033',bruker:'SMB'},
+  {year:2033,periode:'Periode 4A',fra:'03.09.2033',til:'19.11.2033',bruker:'SB'},
+  {year:2033,periode:'Periode 4B',fra:'19.11.2033',til:'03.03.2034',bruker:'AMB'},
+];
+
+const U_COLORS={
+  LAB:{bg:'#d8f3dc',border:'#74c69d',text:'#1b4332'},
+  SMB:{bg:'#ede7f6',border:'#9c7fd4',text:'#311b92'},
+  SB: {bg:'#e8f4f8',border:'#74b9d4',text:'#0d3d52'},
+  AMB:{bg:'#f3e5d8',border:'#c49a78',text:'#5d2f0a'},
+};
+
+function renderOversikt(){
+  const el=document.getElementById('oversikt-content');
+  if(!el)return;
+  const years=[...new Set(SCHEDULE.map(s=>s.year))];
+  const today=new Date();
+  let html='';
+  years.forEach(y=>{
+    const rows=SCHEDULE.filter(s=>s.year===y);
+    html+=`<div style="margin-bottom:1.5rem">
+      <div style="font-size:1rem;font-weight:600;color:#1a6b8a;margin-bottom:.5rem;padding-bottom:.4rem;border-bottom:2px solid #e8f4f8">${y}</div>
+      <div style="overflow-x:auto">
+      <table style="width:100%;border-collapse:collapse;font-size:.85rem">
+        <thead>
+          <tr style="background:#f8f6f2">
+            <th style="text-align:left;padding:.5rem .7rem;font-weight:500;color:#666;border-bottom:1px solid #e8e4df">Periode</th>
+            <th style="text-align:left;padding:.5rem .7rem;font-weight:500;color:#666;border-bottom:1px solid #e8e4df">Fra</th>
+            <th style="text-align:left;padding:.5rem .7rem;font-weight:500;color:#666;border-bottom:1px solid #e8e4df">Til</th>
+            <th style="text-align:left;padding:.5rem .7rem;font-weight:500;color:#666;border-bottom:1px solid #e8e4df">Familie</th>
+          </tr>
+        </thead>
+        <tbody>`;
+    rows.forEach(r=>{
+      const c=U_COLORS[r.bruker]||{bg:'#f5f0eb',border:'#ddd',text:'#333'};
+      const u=USERS.find(x=>x.id===r.bruker);
+      const fraDate=parseNorDate(r.fra);
+      const tilDate=parseNorDate(r.til);
+      const isNow=fraDate<=today&&today<tilDate;
+      html+=`<tr style="background:${isNow?c.bg:'transparent'};border-bottom:1px solid #f0ece8">
+        <td style="padding:.5rem .7rem;font-weight:${isNow?'600':'400'}">${r.periode}${isNow?' <span style="font-size:.7rem;background:#1a6b8a;color:#fff;border-radius:10px;padding:.1rem .5rem;margin-left:.3rem">Nå</span>':''}</td>
+        <td style="padding:.5rem .7rem">${r.fra}</td>
+        <td style="padding:.5rem .7rem">${r.til}</td>
+        <td style="padding:.5rem .7rem">
+          <span style="background:${c.bg};color:${c.text};border:1px solid ${c.border};border-radius:20px;padding:.15rem .7rem;font-size:.78rem;font-weight:500">${r.bruker} – ${u?u.name.split(' ')[0]:r.bruker}</span>
+        </td>
+      </tr>`;
+    });
+    html+=`</tbody></table></div></div>`;
+  });
+  el.innerHTML=html;
+}
+
+function parseNorDate(s){
+  const[d,m,y]=s.split('.');
+  return new Date(+y,+m-1,+d);
 }
 
 // ─── Init ─────────────────────────────────────────────────────────────────
