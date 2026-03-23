@@ -172,13 +172,16 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:#1a6b8a;box-sh
       <div class="card">
         <h2>Ny bestilling</h2>
         <div class="form-grid">
-          <div><label>Hvem bestiller</label>
+          <div><label>Registreres av</label>
             <select id="f-who">
               <option value="SB">Svein Bø</option>
               <option value="LAB">Lars Arne Bø</option>
               <option value="AMB">Alf Marlon Bø</option>
               <option value="SMB">Stig Martin Bø</option>
             </select>
+          </div>
+          <div><label>Leietakers navn</label>
+            <input type="text" id="f-renter" placeholder="F.eks. Sture Refnes Bø">
           </div>
           <div><label>Antall gjester</label>
             <select id="f-guests"><option>1</option><option>2</option><option selected>3</option><option>4</option><option>5</option><option>6</option></select>
@@ -524,9 +527,10 @@ function submitBooking(){
   if(!selStart||!selEnd)return showToast('Velg datoer','error');
   const whoId=document.getElementById('f-who').value;
   const who=USERS.find(u=>u.id===whoId);
+  const renter=document.getElementById('f-renter').value.trim()||who.name;
   const{total,nights}=calcStay(selStart,selEnd);
   if(nights<prices.minNights)return showToast(`Minimum ${prices.minNights} netter`,'error');
-  bookings.push({id:Date.now(),userId:whoId,userInitials:who.initials,name:who.name,
+  bookings.push({id:Date.now(),userId:whoId,userInitials:who.initials,name:renter,registeredBy:who.name,
     email:document.getElementById('f-email').value,phone:document.getElementById('f-phone').value,
     guests:document.getElementById('f-guests').value,from:selStart,to:selEnd,nights,
     msg:document.getElementById('f-msg').value,status:'confirmed',revenue:total+prices.clean});
@@ -553,6 +557,7 @@ function renderAllBookings(){
         <div>
           <div style="font-weight:500">${b.name}</div>
           <div style="font-size:.82rem;color:#666">${fmt(b.from)} → ${fmt(b.to)} · ${b.nights} netter · ${b.guests} gjester</div>
+          ${b.registeredBy&&b.registeredBy!==b.name?`<div style="font-size:.78rem;color:#aaa">Registrert av: ${b.registeredBy}</div>`:''}
           ${b.revenue?`<div style="font-size:.82rem;color:#1e7e34;font-weight:500">kr ${b.revenue.toLocaleString('no-NO')}</div>`:''}
         </div>
       </div>
@@ -581,6 +586,7 @@ function renderAdmin(){
         <div>
           <div style="font-weight:500">${b.name}</div>
           <div style="font-size:.82rem;color:#666">${fmt(b.from)} → ${fmt(b.to)} · ${b.nights} netter${b.guests>0?' · '+b.guests+' gjester':''}</div>
+          ${b.registeredBy&&b.registeredBy!==b.name?`<div style="font-size:.78rem;color:#aaa">Registrert av: ${b.registeredBy}</div>`:''}
           ${b.revenue?`<div style="font-size:.82rem;color:#1e7e34;font-weight:500">kr ${b.revenue.toLocaleString('no-NO')}</div>`:''}
         </div>
       </div>
