@@ -12,7 +12,7 @@ body{font-family:system-ui,sans-serif;background:#f5f0eb;color:#222}
 .hero p{opacity:.88;font-size:1.05rem}
 .badge{display:inline-block;background:rgba(255,255,255,.2);border-radius:20px;padding:.25rem .9rem;font-size:.82rem;margin:.3rem .2rem}
 nav{display:flex;justify-content:center;background:#fff;border-bottom:1px solid #e0ddd8;position:sticky;top:0;z-index:100;flex-wrap:wrap}
-nav button{background:none;border:none;padding:.85rem 1.2rem;font-size:.93rem;cursor:pointer;color:#555;border-bottom:2.5px solid transparent;transition:.2s}
+nav button{background:none;border:none;padding:.75rem 1rem;font-size:.88rem;cursor:pointer;color:#555;border-bottom:2.5px solid transparent;transition:.2s}
 nav button.active{color:#1a6b8a;border-bottom-color:#1a6b8a;font-weight:500}
 .user-bar{background:#fff;border-bottom:1px solid #e0ddd8;padding:.5rem 1.5rem;display:flex;justify-content:space-between;align-items:center;font-size:.85rem}
 .user-chip{background:#e8f4f8;color:#1a6b8a;border-radius:20px;padding:.25rem .85rem;font-weight:500;display:flex;align-items:center;gap:.5rem}
@@ -87,7 +87,7 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:#1a6b8a;box-sh
 .edit-btn:hover{background:#e8f4f8}
 .summary-row{display:flex;justify-content:space-between;padding:.4rem 0;font-size:.9rem;border-bottom:1px solid #f0ece8}
 .tabs{display:flex;gap:0;border-bottom:1px solid #e8e4df;margin-bottom:1.2rem;flex-wrap:wrap}
-.tab{background:none;border:none;padding:.6rem 1.1rem;font-size:.88rem;cursor:pointer;color:#777;border-bottom:2px solid transparent;transition:.15s}
+.tab{background:none;border:none;padding:.6rem 1rem;font-size:.85rem;cursor:pointer;color:#777;border-bottom:2px solid transparent;transition:.15s}
 .tab.active{color:#1a6b8a;border-bottom-color:#1a6b8a;font-weight:500}
 .section{display:none}.section.active{display:block}
 .price-edit-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:.8rem;margin-bottom:.8rem}
@@ -101,9 +101,27 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:#1a6b8a;box-sh
 .db-status{font-size:.75rem;padding:.2rem .6rem;border-radius:8px;margin-left:.5rem}
 .db-ok{background:#d4edda;color:#1e7e34}
 .db-err{background:#f8d7da;color:#721c24}
-/* Modal */
 .modal-overlay{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.45);z-index:500;overflow-y:auto;padding:1rem}
 .modal-box{background:#fff;border-radius:16px;max-width:500px;margin:2rem auto;padding:1.5rem}
+/* Galleri */
+.img-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:.7rem;margin-top:.8rem}
+.img-thumb{position:relative;border-radius:10px;overflow:hidden;aspect-ratio:1;background:#f0ece8;cursor:pointer}
+.img-thumb img{width:100%;height:100%;object-fit:cover;transition:.2s}
+.img-thumb:hover img{opacity:.85}
+.img-thumb .del-img{position:absolute;top:.3rem;right:.3rem;background:rgba(0,0,0,.55);color:#fff;border:none;border-radius:50%;width:24px;height:24px;cursor:pointer;font-size:.8rem;display:flex;align-items:center;justify-content:center}
+.img-thumb .img-caption{position:absolute;bottom:0;left:0;right:0;background:rgba(0,0,0,.5);color:#fff;font-size:.7rem;padding:.2rem .4rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.upload-box{border:2px dashed #c8e4ef;border-radius:12px;padding:1.5rem;text-align:center;cursor:pointer;transition:.2s;background:#f8fbfd}
+.upload-box:hover{border-color:#1a6b8a;background:#e8f4f8}
+.upload-box input{display:none}
+.progress-bar{height:6px;background:#e0ddd8;border-radius:3px;margin-top:.5rem;overflow:hidden}
+.progress-fill{height:100%;background:#1a6b8a;border-radius:3px;transition:.3s;width:0}
+/* Lightbox */
+.lightbox{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.9);z-index:600;align-items:center;justify-content:center}
+.lightbox.open{display:flex}
+.lightbox img{max-width:90vw;max-height:85vh;border-radius:8px;object-fit:contain}
+.lightbox-close{position:absolute;top:1rem;right:1.5rem;color:#fff;font-size:2rem;cursor:pointer;background:none;border:none}
+/* Sjekkliste */
+.check-row{display:flex;align-items:center;gap:.7rem;padding:.55rem 0;border-bottom:1px solid #f0ece8}
 </style>
 </head>
 <body>
@@ -123,6 +141,12 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:#1a6b8a;box-sh
       <button style="background:none;border:none;color:#aaa;font-size:.8rem;cursor:pointer;margin-top:.5rem" onclick="resetLogin()">← Velg annen bruker</button>
     </div>
   </div>
+</div>
+
+<!-- LIGHTBOX -->
+<div class="lightbox" id="lightbox" onclick="closeLightbox()">
+  <button class="lightbox-close" onclick="closeLightbox()">✕</button>
+  <img id="lightbox-img" src="" alt="">
 </div>
 
 <!-- REDIGER MODAL -->
@@ -185,9 +209,10 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:#1a6b8a;box-sh
   <nav>
     <button class="active" onclick="showPage('cal',this)">Kalender</button>
     <button onclick="showPage('bookings',this)">Bookinger</button>
+    <button onclick="showPage('bilder',this)">📸 Bilder</button>
     <button onclick="showPage('oversikt',this)">Oversikt</button>
     <button onclick="showPage('sjekkliste',this)">Sjekklister</button>
-    <button onclick="showPage('info',this)">Om leiligheten</button>
+    <button onclick="showPage('info',this)">Info</button>
     <button id="admin-nav-btn" style="display:none" onclick="showPage('admin',this)">Admin ⚙️</button>
   </nav>
 
@@ -244,6 +269,56 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:#1a6b8a;box-sh
     </div>
   </div>
 
+  <!-- BILDER -->
+  <div id="page-bilder" class="page">
+    <div class="card">
+      <div class="tabs">
+        <button class="tab active" onclick="switchTab('galleri',this)">🏠 Galleri</button>
+        <button class="tab" onclick="switchTab('innsjekk-bilder',this)">✅ Innsjekk</button>
+        <button class="tab" onclick="switchTab('utsjekk-bilder',this)">🧹 Utsjekk</button>
+      </div>
+
+      <!-- GALLERI -->
+      <div id="tab-galleri" class="section active">
+        <p style="font-size:.85rem;color:#666;margin-bottom:1rem">Bilder av leiligheten. Last opp fra mobil eller PC.</p>
+        <label class="upload-box" onclick="document.getElementById('upload-galleri').click()">
+          <div style="font-size:2rem">📸</div>
+          <div style="font-weight:500;margin:.3rem 0">Trykk for å laste opp bilder</div>
+          <div style="font-size:.8rem;color:#aaa">JPG, PNG – maks 10MB per bilde</div>
+          <input type="file" id="upload-galleri" accept="image/*" multiple onchange="uploadImages(this.files,'galleri')">
+        </label>
+        <div class="progress-bar" id="prog-galleri" style="display:none"><div class="progress-fill" id="prog-fill-galleri"></div></div>
+        <div class="img-grid" id="grid-galleri"><div class="loading">Laster bilder...</div></div>
+      </div>
+
+      <!-- INNSJEKK BILDER -->
+      <div id="tab-innsjekk-bilder" class="section">
+        <p style="font-size:.85rem;color:#666;margin-bottom:1rem">Dokumentasjon ved ankomst. Last opp bilder som viser leilighetens tilstand.</p>
+        <label class="upload-box" onclick="document.getElementById('upload-innsjekk').click()">
+          <div style="font-size:2rem">📷</div>
+          <div style="font-weight:500;margin:.3rem 0">Last opp innsjekk-bilder</div>
+          <div style="font-size:.8rem;color:#aaa">Dato og ditt navn lagres automatisk</div>
+          <input type="file" id="upload-innsjekk" accept="image/*" multiple onchange="uploadImages(this.files,'innsjekk')">
+        </label>
+        <div class="progress-bar" id="prog-innsjekk" style="display:none"><div class="progress-fill" id="prog-fill-innsjekk"></div></div>
+        <div class="img-grid" id="grid-innsjekk"><div class="loading">Laster bilder...</div></div>
+      </div>
+
+      <!-- UTSJEKK BILDER -->
+      <div id="tab-utsjekk-bilder" class="section">
+        <p style="font-size:.85rem;color:#666;margin-bottom:1rem">Dokumentasjon ved avreise. Last opp bilder som viser leilighetens tilstand.</p>
+        <label class="upload-box" onclick="document.getElementById('upload-utsjekk').click()">
+          <div style="font-size:2rem">📷</div>
+          <div style="font-weight:500;margin:.3rem 0">Last opp utsjekk-bilder</div>
+          <div style="font-size:.8rem;color:#aaa">Dato og ditt navn lagres automatisk</div>
+          <input type="file" id="upload-utsjekk" accept="image/*" multiple onchange="uploadImages(this.files,'utsjekk')">
+        </label>
+        <div class="progress-bar" id="prog-utsjekk" style="display:none"><div class="progress-fill" id="prog-fill-utsjekk"></div></div>
+        <div class="img-grid" id="grid-utsjekk"><div class="loading">Laster bilder...</div></div>
+      </div>
+    </div>
+  </div>
+
   <!-- OVERSIKT -->
   <div id="page-oversikt" class="page">
     <div class="card">
@@ -263,39 +338,33 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:#1a6b8a;box-sh
   <div id="page-sjekkliste" class="page">
     <div class="card">
       <div class="tabs">
-        <button class="tab active" onclick="switchTab('innsjekk',this)">✅ Innsjekk</button>
-        <button class="tab" onclick="switchTab('utsjekk',this)">🧹 Utsjekk</button>
-        <button class="tab" onclick="switchTab('vedlikehold',this)">🔧 Vedlikehold</button>
+        <button class="tab active" onclick="switchTab('innsjekk-liste',this)">✅ Innsjekk</button>
+        <button class="tab" onclick="switchTab('utsjekk-liste',this)">🧹 Utsjekk</button>
+        <button class="tab" onclick="switchTab('vedlikehold-liste',this)">🔧 Vedlikehold</button>
       </div>
-
-      <!-- INNSJEKK -->
-      <div id="tab-innsjekk" class="section active">
-        <p style="font-size:.85rem;color:#666;margin-bottom:1rem">Huk av når du ankommer leiligheten. Avhukingene nullstilles når du lukker siden.</p>
+      <div id="tab-innsjekk-liste" class="section active">
+        <p style="font-size:.85rem;color:#666;margin-bottom:1rem">Huk av ved ankomst. Nullstilles når du lukker siden.</p>
         <div id="list-innsjekk"></div>
         <div style="display:flex;gap:.6rem;margin-top:1rem">
-          <input type="text" id="new-innsjekk" placeholder="Legg til nytt punkt..." style="flex:1" onkeydown="if(event.key==='Enter')addItem('innsjekk')">
+          <input type="text" id="new-innsjekk" placeholder="Legg til punkt..." style="flex:1" onkeydown="if(event.key==='Enter')addItem('innsjekk')">
           <button class="btn btn-sm" onclick="addItem('innsjekk')" style="margin-top:0">+ Legg til</button>
         </div>
         <button class="btn btn-outline btn-sm" style="margin-top:.8rem" onclick="resetChecks('innsjekk')">Nullstill avhukinger</button>
       </div>
-
-      <!-- UTSJEKK -->
-      <div id="tab-utsjekk" class="section">
-        <p style="font-size:.85rem;color:#666;margin-bottom:1rem">Huk av før du forlater leiligheten. Avhukingene nullstilles når du lukker siden.</p>
+      <div id="tab-utsjekk-liste" class="section">
+        <p style="font-size:.85rem;color:#666;margin-bottom:1rem">Huk av før avreise. Nullstilles når du lukker siden.</p>
         <div id="list-utsjekk"></div>
         <div style="display:flex;gap:.6rem;margin-top:1rem">
-          <input type="text" id="new-utsjekk" placeholder="Legg til nytt punkt..." style="flex:1" onkeydown="if(event.key==='Enter')addItem('utsjekk')">
+          <input type="text" id="new-utsjekk" placeholder="Legg til punkt..." style="flex:1" onkeydown="if(event.key==='Enter')addItem('utsjekk')">
           <button class="btn btn-sm" onclick="addItem('utsjekk')" style="margin-top:0">+ Legg til</button>
         </div>
         <button class="btn btn-outline btn-sm" style="margin-top:.8rem" onclick="resetChecks('utsjekk')">Nullstill avhukinger</button>
       </div>
-
-      <!-- VEDLIKEHOLD -->
-      <div id="tab-vedlikehold" class="section">
-        <p style="font-size:.85rem;color:#666;margin-bottom:1rem">Ting som bør sjekkes eller fikses ved leiligheten.</p>
+      <div id="tab-vedlikehold-liste" class="section">
+        <p style="font-size:.85rem;color:#666;margin-bottom:1rem">Ting som bør sjekkes eller fikses.</p>
         <div id="list-vedlikehold"></div>
         <div style="display:flex;gap:.6rem;margin-top:1rem">
-          <input type="text" id="new-vedlikehold" placeholder="Legg til nytt punkt..." style="flex:1" onkeydown="if(event.key==='Enter')addItem('vedlikehold')">
+          <input type="text" id="new-vedlikehold" placeholder="Legg til punkt..." style="flex:1" onkeydown="if(event.key==='Enter')addItem('vedlikehold')">
           <button class="btn btn-sm" onclick="addItem('vedlikehold')" style="margin-top:0">+ Legg til</button>
         </div>
         <button class="btn btn-outline btn-sm" style="margin-top:.8rem" onclick="resetChecks('vedlikehold')">Nullstill avhukinger</button>
@@ -305,8 +374,6 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:#1a6b8a;box-sh
 
   <!-- INFO -->
   <div id="page-info" class="page">
-
-    <!-- Adresse og kart -->
     <div class="card">
       <h2>📍 Adresse</h2>
       <p style="font-size:1rem;font-weight:500;margin-bottom:.3rem">Calle Conde de Mieres, 21</p>
@@ -316,24 +383,18 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:#1a6b8a;box-sh
         🗺️ Åpne i Google Maps
       </a>
     </div>
-
-    <!-- Nøkkel og tilgang -->
     <div class="card">
       <h2>🔑 Nøkkel og tilgang</h2>
       <div class="feature"><span class="icon">🔑</span><div><b>Innsjekk:</b> Fra kl. 15:00</div></div>
       <div class="feature"><span class="icon">🏠</span><div><b>Utsjekk:</b> Innen kl. 11:00</div></div>
-      <div class="feature"><span class="icon">🗝️</span><div><b>Nøkkelboks:</b> <span style="color:#aaa">Ikke satt opp ennå – oppdateres</span></div></div>
-      <div class="feature"><span class="icon">🚪</span><div><b>Portkode:</b> <span style="color:#aaa">Ikke satt opp ennå – oppdateres</span></div></div>
+      <div class="feature"><span class="icon">🗝️</span><div><b>Nøkkelboks:</b> <span style="color:#aaa">Oppdateres</span></div></div>
+      <div class="feature"><span class="icon">🚪</span><div><b>Portkode:</b> <span style="color:#aaa">Oppdateres</span></div></div>
     </div>
-
-    <!-- WiFi -->
     <div class="card">
       <h2>📶 WiFi</h2>
       <div class="feature"><span class="icon">📶</span><div><b>Nettverk:</b> <span style="color:#aaa">Oppdateres</span></div></div>
       <div class="feature"><span class="icon">🔒</span><div><b>Passord:</b> <span style="color:#aaa">Oppdateres</span></div></div>
     </div>
-
-    <!-- Fasiliteter -->
     <div class="card">
       <h2>🏠 Om leiligheten</h2>
       <p style="color:#555;line-height:1.7;margin-bottom:1rem">Romslig og lys leilighet i Torremolinos, kun 350 meter fra stranden og 150 meter fra den livlige hovedgaten på Costa del Sol.</p>
@@ -360,57 +421,30 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:#1a6b8a;box-sh
         </div>
       </div>
     </div>
-
-    <!-- Kontaktpersoner -->
     <div class="card">
       <h2>📞 Kontaktpersoner</h2>
       <div class="feature"><span class="icon">🔧</span><div><b>Vaktmester:</b> <span style="color:#aaa">Oppdateres</span></div></div>
       <div class="feature"><span class="icon">🏘️</span><div><b>Nabo / kontakt:</b> <span style="color:#aaa">Oppdateres</span></div></div>
-      <div class="feature"><span class="icon">👤</span><div><b>Ansvarlig Bø-familien:</b> Svein Bø · +47 — —</div></div>
+      <div class="feature"><span class="icon">👤</span><div><b>Ansvarlig:</b> Svein Bø</div></div>
     </div>
-
-    <!-- Nødnummer -->
     <div class="card">
       <h2>🚨 Viktige numre</h2>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:.8rem">
-        <a href="tel:112" style="text-decoration:none">
-          <div style="background:#fde8e8;border-radius:10px;padding:.8rem;text-align:center;border:1px solid #f5c6cb">
-            <div style="font-size:1.4rem;font-weight:700;color:#c0392b">112</div>
-            <div style="font-size:.78rem;color:#721c24">Nødsituasjon (EU)</div>
-          </div>
-        </a>
-        <a href="tel:061" style="text-decoration:none">
-          <div style="background:#fde8e8;border-radius:10px;padding:.8rem;text-align:center;border:1px solid #f5c6cb">
-            <div style="font-size:1.4rem;font-weight:700;color:#c0392b">061</div>
-            <div style="font-size:.78rem;color:#721c24">Ambulanse (Spania)</div>
-          </div>
-        </a>
-        <a href="tel:062" style="text-decoration:none">
-          <div style="background:#fff3cd;border-radius:10px;padding:.8rem;text-align:center;border:1px solid #f5d78e">
-            <div style="font-size:1.4rem;font-weight:700;color:#856404">062</div>
-            <div style="font-size:.78rem;color:#856404">Politi (Spania)</div>
-          </div>
-        </a>
-        <a href="tel:080" style="text-decoration:none">
-          <div style="background:#fff3cd;border-radius:10px;padding:.8rem;text-align:center;border:1px solid #f5d78e">
-            <div style="font-size:1.4rem;font-weight:700;color:#856404">080</div>
-            <div style="font-size:.78rem;color:#856404">Brannvesen (Spania)</div>
-          </div>
-        </a>
+        <a href="tel:112" style="text-decoration:none"><div style="background:#fde8e8;border-radius:10px;padding:.8rem;text-align:center;border:1px solid #f5c6cb"><div style="font-size:1.4rem;font-weight:700;color:#c0392b">112</div><div style="font-size:.78rem;color:#721c24">Nødsituasjon (EU)</div></div></a>
+        <a href="tel:061" style="text-decoration:none"><div style="background:#fde8e8;border-radius:10px;padding:.8rem;text-align:center;border:1px solid #f5c6cb"><div style="font-size:1.4rem;font-weight:700;color:#c0392b">061</div><div style="font-size:.78rem;color:#721c24">Ambulanse (Spania)</div></div></a>
+        <a href="tel:062" style="text-decoration:none"><div style="background:#fff3cd;border-radius:10px;padding:.8rem;text-align:center;border:1px solid #f5d78e"><div style="font-size:1.4rem;font-weight:700;color:#856404">062</div><div style="font-size:.78rem;color:#856404">Politi (Spania)</div></div></a>
+        <a href="tel:080" style="text-decoration:none"><div style="background:#fff3cd;border-radius:10px;padding:.8rem;text-align:center;border:1px solid #f5d78e"><div style="font-size:1.4rem;font-weight:700;color:#856404">080</div><div style="font-size:.78rem;color:#856404">Brannvesen (Spania)</div></div></a>
       </div>
       <div style="margin-top:.8rem">
-        <div class="feature"><span class="icon">🏥</span><div><b>Nærmeste sykehus:</b> Hospital Costa del Sol, Marbella · <a href="tel:+34951976669" style="color:#1a6b8a">+34 951 97 66 69</a></div></div>
-        <div class="feature"><span class="icon">🇳🇴</span><div><b>Norsk ambassade Madrid:</b> <a href="tel:+3491310310" style="color:#1a6b8a">+34 91 310 31 16</a></div></div>
+        <div class="feature"><span class="icon">🏥</span><div><b>Nærmeste sykehus:</b> Hospital Costa del Sol · <a href="tel:+34951976669" style="color:#1a6b8a">+34 951 97 66 69</a></div></div>
+        <div class="feature"><span class="icon">🇳🇴</span><div><b>Norsk ambassade Madrid:</b> <a href="tel:+3491310316" style="color:#1a6b8a">+34 91 310 31 16</a></div></div>
       </div>
     </div>
-
-    <!-- Priser -->
     <div class="card">
       <h2>💰 Priser</h2>
       <div id="price-display"></div>
       <p style="font-size:.82rem;color:#888;margin-top:.8rem">Minimumsleie 4 netter. Depositum: kr 2 000 (tilbakebetales).</p>
     </div>
-
   </div>
 
   <!-- ADMIN -->
@@ -418,18 +452,9 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:#1a6b8a;box-sh
     <div class="card">
       <h3>Oversikt</h3>
       <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:.8rem">
-        <div style="background:#f0f8fc;border-radius:10px;padding:.8rem;text-align:center">
-          <div style="font-size:1.6rem;font-weight:700;color:#1a6b8a" id="stat-total">0</div>
-          <div style="font-size:.78rem;color:#666">Bestillinger</div>
-        </div>
-        <div style="background:#f0faf4;border-radius:10px;padding:.8rem;text-align:center">
-          <div style="font-size:1.6rem;font-weight:700;color:#1e7e34" id="stat-nights">0</div>
-          <div style="font-size:.78rem;color:#666">Netter booket</div>
-        </div>
-        <div style="background:#fff8e8;border-radius:10px;padding:.8rem;text-align:center">
-          <div style="font-size:1.6rem;font-weight:700;color:#856404" id="stat-revenue">kr 0</div>
-          <div style="font-size:.78rem;color:#666">Estimert inntekt</div>
-        </div>
+        <div style="background:#f0f8fc;border-radius:10px;padding:.8rem;text-align:center"><div style="font-size:1.6rem;font-weight:700;color:#1a6b8a" id="stat-total">0</div><div style="font-size:.78rem;color:#666">Bestillinger</div></div>
+        <div style="background:#f0faf4;border-radius:10px;padding:.8rem;text-align:center"><div style="font-size:1.6rem;font-weight:700;color:#1e7e34" id="stat-nights">0</div><div style="font-size:.78rem;color:#666">Netter booket</div></div>
+        <div style="background:#fff8e8;border-radius:10px;padding:.8rem;text-align:center"><div style="font-size:1.6rem;font-weight:700;color:#856404" id="stat-revenue">kr 0</div><div style="font-size:.78rem;color:#666">Estimert inntekt</div></div>
       </div>
     </div>
     <div class="card">
@@ -438,9 +463,7 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:#1a6b8a;box-sh
         <button class="tab" onclick="switchTab('prices',this)">Priser</button>
         <button class="tab" onclick="switchTab('block',this)">Blokker datoer</button>
       </div>
-      <div id="tab-abookings" class="section active">
-        <div id="admin-booking-list"><div class="loading">Laster...</div></div>
-      </div>
+      <div id="tab-abookings" class="section active"><div id="admin-booking-list"><div class="loading">Laster...</div></div></div>
       <div id="tab-prices" class="section">
         <p style="font-size:.85rem;color:#666;margin-bottom:1rem">Endre priser per natt for hver sesong.</p>
         <div class="price-edit-grid">
@@ -472,6 +495,7 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:#1a6b8a;box-sh
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
 import { getFirestore, collection, doc, addDoc, getDocs, deleteDoc, setDoc, onSnapshot, query, orderBy } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+import { getStorage, ref, uploadBytesResumable, getDownloadURL, deleteObject, listAll } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-storage.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyAGEz455uqkVANa0ERdWhT_f5_HNyec-ys",
@@ -484,20 +508,16 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig);
 const db  = getFirestore(app);
+const storage = getStorage(app);
 
 const USERS=[
   {id:'SB', name:'Svein Bø',       initials:'SB',  pin:'7392',role:'admin',color:'#1a6b8a',bg:'#e8f4f8'},
-  {id:'LAB',name:'Lars Arne Bø',   initials:'LAB', pin:'4815',role:'admin', color:'#2d6a4f',bg:'#d8f3dc'},
-  {id:'AMB',name:'Alf Marlon Bø',  initials:'AMB', pin:'6271',role:'admin', color:'#6d4c41',bg:'#f3e5d8'},
-  {id:'SMB',name:'Stig Martin Bø', initials:'SMB', pin:'9538',role:'admin', color:'#5e35b1',bg:'#ede7f6'},
+  {id:'LAB',name:'Lars Arne Bø',   initials:'LAB', pin:'4815',role:'admin',color:'#2d6a4f',bg:'#d8f3dc'},
+  {id:'AMB',name:'Alf Marlon Bø',  initials:'AMB', pin:'6271',role:'admin',color:'#6d4c41',bg:'#f3e5d8'},
+  {id:'SMB',name:'Stig Martin Bø', initials:'SMB', pin:'9538',role:'admin',color:'#5e35b1',bg:'#ede7f6'},
 ];
 
-const U_COLORS={
-  LAB:{bg:'#d8f3dc',border:'#74c69d',text:'#1b4332'},
-  SMB:{bg:'#ede7f6',border:'#9c7fd4',text:'#311b92'},
-  SB: {bg:'#e8f4f8',border:'#74b9d4',text:'#0d3d52'},
-  AMB:{bg:'#f3e5d8',border:'#c49a78',text:'#5d2f0a'},
-};
+const U_COLORS={LAB:{bg:'#d8f3dc',border:'#74c69d',text:'#1b4332'},SMB:{bg:'#ede7f6',border:'#9c7fd4',text:'#311b92'},SB:{bg:'#e8f4f8',border:'#74b9d4',text:'#0d3d52'},AMB:{bg:'#f3e5d8',border:'#c49a78',text:'#5d2f0a'}};
 
 const SCHEDULE=[
   {year:2026,periode:'Periode 1',fra:'07.03.2026',til:'02.05.2026',bruker:'SMB'},
@@ -567,14 +587,12 @@ const SCHEDULE=[
 ];
 
 let currentUser=null,selectedUserId=null,pinEntry='';
-let bookings=[];
-let prices={low:900,mid:1200,high:1600,clean:550,minNights:4};
-let selStart=null,selEnd=null;
-let calYear=new Date().getFullYear(),calMonth=new Date().getMonth();
+let bookings=[],prices={low:900,mid:1200,high:1600,clean:550,minNights:4};
+let selStart=null,selEnd=null,calYear=new Date().getFullYear(),calMonth=new Date().getMonth();
 const MONTHS=['Januar','Februar','Mars','April','Mai','Juni','Juli','August','September','Oktober','November','Desember'];
 const DAYS=['Ma','Ti','On','To','Fr','Lø','Sø'];
 
-// ─── Firebase ─────────────────────────────────────────────────────────────
+// ─── Firebase listeners ───────────────────────────────────────────────────
 function startListening(){
   const q=query(collection(db,'bookings'),orderBy('from'));
   onSnapshot(q,snap=>{
@@ -583,30 +601,94 @@ function startListening(){
     if(currentUser?.role==='admin')renderAdmin();
     document.getElementById('db-status').textContent='☁️ Tilkoblet';
     document.getElementById('db-status').className='db-status db-ok';
-  },err=>{
+  },()=>{
     document.getElementById('db-status').textContent='⚠️ Frakoblet';
     document.getElementById('db-status').className='db-status db-err';
   });
 }
 
 async function loadPrices(){
-  try{
-    const snap=await getDocs(collection(db,'settings'));
-    snap.forEach(d=>{if(d.id==='prices')prices={...prices,...d.data()};});
-  }catch(e){}
+  try{const snap=await getDocs(collection(db,'settings'));snap.forEach(d=>{if(d.id==='prices')prices={...prices,...d.data()};});}catch(e){}
   renderPriceDisplay();
 }
+
+// ─── Bilder (Firebase Storage) ────────────────────────────────────────────
+window.uploadImages=async function(files,folder){
+  if(!files.length)return;
+  const prog=document.getElementById('prog-'+folder);
+  const fill=document.getElementById('prog-fill-'+folder);
+  prog.style.display='block';
+  let done=0;
+  for(const file of files){
+    const ts=Date.now();
+    const uName=currentUser?currentUser.initials:'ukjent';
+    const path=`${folder}/${ts}_${uName}_${file.name}`;
+    const storageRef=ref(storage,path);
+    await new Promise((res,rej)=>{
+      const task=uploadBytesResumable(storageRef,file);
+      task.on('state_changed',
+        snap=>{fill.style.width=(snap.bytesTransferred/snap.totalBytes*100)+'%';},
+        rej,
+        ()=>{done++;fill.style.width=(done/files.length*100)+'%';res();}
+      );
+    });
+  }
+  setTimeout(()=>{prog.style.display='none';fill.style.width='0';},800);
+  showToast(`${files.length} bilde${files.length>1?'r':''} lastet opp! ☁️`);
+  loadImages(folder);
+};
+
+async function loadImages(folder){
+  const grid=document.getElementById('grid-'+folder);
+  if(!grid)return;
+  grid.innerHTML='<div class="loading">Laster bilder...</div>';
+  try{
+    const listRef=ref(storage,folder+'/');
+    const res=await listAll(listRef);
+    if(!res.items.length){grid.innerHTML='<p style="color:#aaa;font-size:.88rem;padding:.5rem 0">Ingen bilder ennå.</p>';return;}
+    grid.innerHTML='';
+    for(const item of res.items){
+      const url=await getDownloadURL(item);
+      const parts=item.name.split('_');
+      const who=parts[1]||'';
+      const thumb=document.createElement('div');
+      thumb.className='img-thumb';
+      thumb.innerHTML=`
+        <img src="${url}" alt="" loading="lazy" onclick="openLightbox('${url}')">
+        <button class="del-img" onclick="deleteImage(event,'${item.fullPath}','${folder}')" title="Slett">✕</button>
+        ${who?`<div class="img-caption">${who}</div>`:''}`;
+      grid.appendChild(thumb);
+    }
+  }catch(e){grid.innerHTML='<p style="color:#c0392b;font-size:.88rem">Kunne ikke laste bilder.</p>';}
+}
+
+window.deleteImage=async function(e,path,folder){
+  e.stopPropagation();
+  try{
+    await deleteObject(ref(storage,path));
+    showToast('Bilde slettet!');
+    loadImages(folder);
+  }catch(err){showToast('Feil ved sletting','error');}
+};
+
+window.openLightbox=function(url){
+  document.getElementById('lightbox-img').src=url;
+  document.getElementById('lightbox').classList.add('open');
+};
+window.closeLightbox=function(){
+  document.getElementById('lightbox').classList.remove('open');
+  document.getElementById('lightbox-img').src='';
+};
 
 // ─── Login ────────────────────────────────────────────────────────────────
 function buildLoginUI(){
   const btns=document.getElementById('user-btns');btns.innerHTML='';
   USERS.forEach(u=>{
-    const b=document.createElement('button');
-    b.className='user-btn';b.id='ubtn-'+u.id;
+    const b=document.createElement('button');b.className='user-btn';b.id='ubtn-'+u.id;
     b.onclick=()=>selectUser(u.id);
     b.innerHTML=`<div class="initials" style="background:${u.bg};color:${u.color}">${u.initials}</div>
       <div class="uname">${u.name.split(' ')[0]}</div>
-      <div class="urole">${u.role==='admin'?'Admin':'Bruker'}</div>`;
+      <div class="urole">Admin</div>`;
     btns.appendChild(b);
   });
 }
@@ -641,11 +723,7 @@ function pinPress(k){
 
 function updatePinDots(){
   const dots=document.getElementById('pin-dots');dots.innerHTML='';
-  for(let i=0;i<4;i++){
-    const d=document.createElement('div');
-    d.className='pin-dot'+(i<pinEntry.length?' filled':'');
-    dots.appendChild(d);
-  }
+  for(let i=0;i<4;i++){const d=document.createElement('div');d.className='pin-dot'+(i<pinEntry.length?' filled':'');dots.appendChild(d);}
 }
 
 function checkPin(){
@@ -661,12 +739,7 @@ function checkPin(){
   }
 }
 
-window.resetLogin=function(){
-  selectedUserId=null;pinEntry='';
-  document.getElementById('pin-section').style.display='none';
-  document.querySelectorAll('.user-btn').forEach(b=>b.classList.remove('selected'));
-};
-
+window.resetLogin=function(){selectedUserId=null;pinEntry='';document.getElementById('pin-section').style.display='none';document.querySelectorAll('.user-btn').forEach(b=>b.classList.remove('selected'));};
 window.logout=function(){
   currentUser=null;selectedUserId=null;pinEntry='';selStart=null;selEnd=null;
   document.getElementById('app').style.display='none';
@@ -678,22 +751,16 @@ window.logout=function(){
 function initApp(){
   const u=currentUser;
   const chip=document.getElementById('user-chip-bar');
-  chip.className='user-chip'+(u.role==='admin'?' admin-chip':'');
-  chip.innerHTML=`<span style="width:28px;height:28px;border-radius:50%;background:${u.bg};color:${u.color};display:inline-flex;align-items:center;justify-content:center;font-weight:600;font-size:.78rem">${u.initials}</span> ${u.name}${u.role==='admin'?' · Admin':''}`;
-  document.getElementById('admin-nav-btn').style.display=u.role==='admin'?'block':'none';
-  const whoSel=document.getElementById('f-who');
-  if(whoSel)whoSel.value=u.id;
-  renderCal();renderPriceDisplay();renderAllBookings();
-  if(u.role==='admin')renderAdmin();
+  chip.className='user-chip admin-chip';
+  chip.innerHTML=`<span style="width:28px;height:28px;border-radius:50%;background:${u.bg};color:${u.color};display:inline-flex;align-items:center;justify-content:center;font-weight:600;font-size:.78rem">${u.initials}</span> ${u.name} · Admin`;
+  document.getElementById('admin-nav-btn').style.display='block';
+  const whoSel=document.getElementById('f-who');if(whoSel)whoSel.value=u.id;
+  renderCal();renderPriceDisplay();renderAllBookings();renderAdmin();
   showPage('cal',document.querySelector('nav button'));
 }
 
 // ─── Calendar ─────────────────────────────────────────────────────────────
-function blockedSet(){
-  const s=new Set();
-  bookings.forEach(b=>{let d=new Date(b.from),e=new Date(b.to);while(d<e){s.add(d.toISOString().split('T')[0]);d.setDate(d.getDate()+1);}});
-  return s;
-}
+function blockedSet(){const s=new Set();bookings.forEach(b=>{let d=new Date(b.from),e=new Date(b.to);while(d<e){s.add(d.toISOString().split('T')[0]);d.setDate(d.getDate()+1);}});return s;}
 
 function renderCal(){
   const blocked=blockedSet();
@@ -713,10 +780,8 @@ function renderCal(){
     else if(blocked.has(ds))el.classList.add('booked');
     else{
       el.classList.add('clickable');
-      if(selStart&&selEnd){
-        if(ds===selStart||ds===selEnd)el.classList.add('selected');
-        else if(dObj>new Date(selStart)&&dObj<new Date(selEnd))el.classList.add('in-range');
-      } else if(selStart&&ds===selStart)el.classList.add('selected');
+      if(selStart&&selEnd){if(ds===selStart||ds===selEnd)el.classList.add('selected');else if(dObj>new Date(selStart)&&dObj<new Date(selEnd))el.classList.add('in-range');}
+      else if(selStart&&ds===selStart)el.classList.add('selected');
       el.addEventListener('click',()=>pickDate(ds,blocked));
     }
     if(dObj.toDateString()===today.toDateString())el.classList.add('today');
@@ -756,8 +821,7 @@ function updateSummary(){
       <div class="price-row"><span>Rengjøring</span><span>kr ${prices.clean.toLocaleString('no-NO')}</span></div>
       <div class="price-row total"><span>Totalt</span><span>kr ${(total+prices.clean).toLocaleString('no-NO')}</span></div>`;
   } else if(selStart){
-    el.style.color='#1a6b8a';el.textContent=`Innsjekk: ${fmt(selStart)}  —  Velg utsjekk-dato`;
-    fs.style.display='none';
+    el.style.color='#1a6b8a';el.textContent=`Innsjekk: ${fmt(selStart)}  —  Velg utsjekk-dato`;fs.style.display='none';
   } else {el.textContent='';fs.style.display='none';}
 }
 
@@ -782,10 +846,7 @@ window.submitBooking=async function(){
     await addDoc(collection(db,'bookings'),b);
     selStart=null;selEnd=null;
     document.getElementById('booking-form-section').style.display='none';
-    document.getElementById('f-renter').value='';
-    document.getElementById('f-email').value='';
-    document.getElementById('f-phone').value='';
-    document.getElementById('f-msg').value='';
+    ['f-renter','f-email','f-phone','f-msg'].forEach(id=>document.getElementById(id).value='');
     showToast('Bestilling lagret! ☁️');
   }catch(e){showToast('Feil: '+e.message,'error');}
 };
@@ -805,7 +866,7 @@ function renderAllBookings(){
         <div>
           <div style="font-weight:500">${b.name}</div>
           <div style="font-size:.82rem;color:#666">${fmt(b.from)} → ${fmt(b.to)} · ${b.nights} netter · ${b.guests} gjester</div>
-          ${b.registeredBy&&b.registeredBy!==b.name?`<div style="font-size:.78rem;color:#aaa">Registrert av: ${b.registeredBy}</div>`:''}
+          ${b.registeredBy&&b.registeredBy!==b.name?`<div style="font-size:.78rem;color:#aaa">Reg. av: ${b.registeredBy}</div>`:''}
           ${b.revenue?`<div style="font-size:.82rem;color:#1e7e34;font-weight:500">kr ${b.revenue.toLocaleString('no-NO')}</div>`:''}
         </div>
       </div>
@@ -816,7 +877,6 @@ function renderAllBookings(){
 
 // ─── Admin ────────────────────────────────────────────────────────────────
 function renderAdmin(){
-  if(!currentUser||currentUser.role!=='admin')return;
   const real=bookings.filter(b=>b.status!=='blocked');
   document.getElementById('stat-total').textContent=real.length;
   document.getElementById('stat-nights').textContent=real.reduce((a,b)=>a+(b.nights||0),0);
@@ -852,7 +912,6 @@ function renderAdmin(){
   document.getElementById('p-minnights').value=prices.minNights;
 }
 
-// ─── Rediger booking ──────────────────────────────────────────────────────
 window.editB=function(firestoreId){
   const b=bookings.find(x=>x.firestoreId===firestoreId);if(!b)return;
   document.getElementById('e-name').value=b.name||'';
@@ -868,11 +927,7 @@ window.editB=function(firestoreId){
   document.getElementById('edit-modal').dataset.id=firestoreId;
   document.getElementById('edit-modal').style.display='block';
 };
-
-window.closeEdit=function(){
-  document.getElementById('edit-modal').style.display='none';
-};
-
+window.closeEdit=function(){document.getElementById('edit-modal').style.display='none';};
 window.saveEdit=async function(){
   const firestoreId=document.getElementById('edit-modal').dataset.id;
   const from=document.getElementById('e-from').value;
@@ -881,33 +936,25 @@ window.saveEdit=async function(){
   const whoId=document.getElementById('e-who').value;
   const who=USERS.find(u=>u.id===whoId);
   const{nights}=calcStay(from,to);
-  const updated={name:document.getElementById('e-name').value,
-    userId:whoId,userInitials:who.initials,registeredBy:who.name,
+  const updated={name:document.getElementById('e-name').value,userId:whoId,userInitials:who.initials,registeredBy:who.name,
     from,to,nights,guests:document.getElementById('e-guests').value,
     phone:document.getElementById('e-phone').value,email:document.getElementById('e-email').value,
-    revenue:+document.getElementById('e-revenue').value,
-    msg:document.getElementById('e-msg').value,status:document.getElementById('e-status').value};
-  try{
-    await setDoc(doc(db,'bookings',firestoreId),updated,{merge:true});
-    closeEdit();showToast('Booking oppdatert! ☁️');
-  }catch(e){showToast('Feil: '+e.message,'error');}
+    revenue:+document.getElementById('e-revenue').value,msg:document.getElementById('e-msg').value,
+    status:document.getElementById('e-status').value};
+  try{await setDoc(doc(db,'bookings',firestoreId),updated,{merge:true});closeEdit();showToast('Booking oppdatert! ☁️');}
+  catch(e){showToast('Feil: '+e.message,'error');}
 };
-
 window.deleteB=async function(firestoreId){
   try{await deleteDoc(doc(db,'bookings',firestoreId));showToast('Booking slettet!');}
   catch(e){showToast('Feil ved sletting','error');}
 };
-
 window.savePrices=async function(){
-  prices.low=+document.getElementById('p-low').value||900;
-  prices.mid=+document.getElementById('p-mid').value||1200;
-  prices.high=+document.getElementById('p-high').value||1600;
-  prices.clean=+document.getElementById('p-clean').value||550;
+  prices.low=+document.getElementById('p-low').value||900;prices.mid=+document.getElementById('p-mid').value||1200;
+  prices.high=+document.getElementById('p-high').value||1600;prices.clean=+document.getElementById('p-clean').value||550;
   prices.minNights=+document.getElementById('p-minnights').value||4;
   await setDoc(doc(db,'settings','prices'),prices);
   renderPriceDisplay();updateSummary();showToast('Priser lagret! ☁️');
 };
-
 function renderPriceDisplay(){
   document.getElementById('price-display').innerHTML=`
     <div class="summary-row"><span>Lavsesong (jan–apr, nov–des)</span><span><b>kr ${prices.low.toLocaleString('no-NO')}/natt</b></span></div>
@@ -915,139 +962,64 @@ function renderPriceDisplay(){
     <div class="summary-row"><span>Høysesong (jul–aug)</span><span><b>kr ${prices.high.toLocaleString('no-NO')}/natt</b></span></div>
     <div class="summary-row"><span>Rengjøringsavgift (engangs)</span><span><b>kr ${prices.clean.toLocaleString('no-NO')}</b></span></div>`;
 }
-
 window.addBlock=async function(){
-  const from=document.getElementById('b-from').value;
-  const to=document.getElementById('b-to').value;
+  const from=document.getElementById('b-from').value,to=document.getElementById('b-to').value;
   const reason=document.getElementById('b-reason').value||'Blokkert';
   if(!from||!to||from>=to)return showToast('Velg gyldige datoer','error');
   const{nights}=calcStay(from,to);
   try{
     await addDoc(collection(db,'bookings'),{userId:'SB',userInitials:'SB',name:'Blokk: '+reason,
-      registeredBy:'Svein Bø',email:'',phone:'',guests:0,from,to,nights,msg:'',status:'blocked',revenue:0,
-      createdAt:new Date().toISOString()});
-    document.getElementById('b-from').value='';
-    document.getElementById('b-to').value='';
-    document.getElementById('b-reason').value='';
+      registeredBy:'Svein Bø',email:'',phone:'',guests:0,from,to,nights,msg:'',status:'blocked',revenue:0,createdAt:new Date().toISOString()});
+    ['b-from','b-to','b-reason'].forEach(id=>document.getElementById(id).value='');
     showToast('Datoer blokkert!');
   }catch(e){showToast('Feil: '+e.message,'error');}
 };
 
 // ─── Sjekklister ──────────────────────────────────────────────────────────
 const DEFAULT_LISTS={
-  innsjekk:[
-    'Sjekk at alle vinduer og dører lukkes/låses',
-    'Sjekk at klimaanlegg fungerer',
-    'Sjekk vanntrykk og varmtvann',
-    'Sjekk at kjøleskap og fryser er rent og fungerer',
-    'Sjekk at alle lamper fungerer',
-    'Sjekk at TV og internett fungerer',
-    'Kontroller at det er nok håndklær og sengetøy',
-    'Sjekk balkong og utemøbler',
-  ],
-  utsjekk:[
-    'Tøm søppel og sett ut søppelposer',
-    'Vask opp og rydd kjøkkenet',
-    'Rengjør bad og dusj',
-    'Støvsug og vask gulv',
-    'Vask og tørk sengetøy',
-    'Sjekk at alle vinduer er lukket',
-    'Slå av alt elektrisk (klima, TV, lys)',
-    'Tøm kjøleskap for matvarer',
-    'Lås alle dører og porter',
-    'Etterlat nøkler på avtalt sted',
-  ],
-  vedlikehold:[
-    'Sjekk at klimaanlegg er rengjort (filter)',
-    'Sjekk rør og kran for lekkasjer',
-    'Sjekk at alle låser fungerer',
-    'Sjekk balkong for skader',
-    'Kontroller brannslukker',
-  ],
+  innsjekk:['Sjekk at alle vinduer og dører lukkes','Sjekk at klimaanlegg fungerer','Sjekk vanntrykk og varmtvann','Sjekk at kjøleskap og fryser fungerer','Sjekk at alle lamper fungerer','Sjekk at TV fungerer','Kontroller håndklær og sengetøy','Sjekk balkong og utemøbler'],
+  utsjekk:['Tøm søppel og sett ut søppelposer','Vask opp og rydd kjøkkenet','Rengjør bad og dusj','Støvsug og vask gulv','Vask og tørk sengetøy','Sjekk at alle vinduer er lukket','Slå av alt elektrisk (klima, TV, lys)','Tøm kjøleskap for matvarer','Lås alle dører og porter','Etterlat nøkler på avtalt sted'],
+  vedlikehold:['Sjekk at klimaanlegg er rengjort (filter)','Sjekk rør og kran for lekkasjer','Sjekk at alle låser fungerer','Sjekk balkong for skader','Kontroller brannslukker'],
 };
-
 let lists={
-  innsjekk: JSON.parse(localStorage.getItem('trm-list-innsjekk')||'null') || DEFAULT_LISTS.innsjekk.map(t=>({text:t,checked:false})),
-  utsjekk:  JSON.parse(localStorage.getItem('trm-list-utsjekk')||'null')  || DEFAULT_LISTS.utsjekk.map(t=>({text:t,checked:false})),
-  vedlikehold: JSON.parse(localStorage.getItem('trm-list-vedlikehold')||'null') || DEFAULT_LISTS.vedlikehold.map(t=>({text:t,checked:false})),
+  innsjekk:JSON.parse(localStorage.getItem('trm-list-innsjekk')||'null')||DEFAULT_LISTS.innsjekk.map(t=>({text:t,checked:false})),
+  utsjekk:JSON.parse(localStorage.getItem('trm-list-utsjekk')||'null')||DEFAULT_LISTS.utsjekk.map(t=>({text:t,checked:false})),
+  vedlikehold:JSON.parse(localStorage.getItem('trm-list-vedlikehold')||'null')||DEFAULT_LISTS.vedlikehold.map(t=>({text:t,checked:false})),
 };
-
-function saveList(type){ localStorage.setItem('trm-list-'+type, JSON.stringify(lists[type])); }
-
+function saveList(type){localStorage.setItem('trm-list-'+type,JSON.stringify(lists[type]));}
 function renderList(type){
-  const el=document.getElementById('list-'+type); if(!el)return;
+  const el=document.getElementById('list-'+type);if(!el)return;
   el.innerHTML='';
   lists[type].forEach((item,i)=>{
-    const row=document.createElement('div');
-    row.style.cssText='display:flex;align-items:center;gap:.7rem;padding:.55rem 0;border-bottom:1px solid #f0ece8';
-    row.innerHTML=`
-      <input type="checkbox" ${item.checked?'checked':''} style="width:18px;height:18px;cursor:pointer;accent-color:#1a6b8a;flex-shrink:0"
-        onchange="toggleItem('${type}',${i},this.checked)">
+    const row=document.createElement('div');row.className='check-row';
+    row.innerHTML=`<input type="checkbox" ${item.checked?'checked':''} style="width:18px;height:18px;cursor:pointer;accent-color:#1a6b8a;flex-shrink:0" onchange="toggleItem('${type}',${i},this.checked)">
       <span style="flex:1;font-size:.93rem;${item.checked?'text-decoration:line-through;color:#aaa':''}">${item.text}</span>
-      <button onclick="removeItem('${type}',${i})" style="background:none;border:none;cursor:pointer;color:#ccc;font-size:1.1rem;padding:0 .2rem" title="Fjern">✕</button>`;
+      <button onclick="removeItem('${type}',${i})" style="background:none;border:none;cursor:pointer;color:#ccc;font-size:1.1rem;padding:0 .2rem">✕</button>`;
     el.appendChild(row);
   });
-  const done=lists[type].filter(i=>i.checked).length;
-  const total=lists[type].length;
-  const prog=document.getElementById('prog-'+type);
-  if(prog){prog.textContent=`${done}/${total} fullført`;prog.style.color=done===total&&total>0?'#1e7e34':'#888';}
 }
-
-window.toggleItem=function(type,i,checked){
-  lists[type][i].checked=checked;
-  saveList(type);renderList(type);
-};
-
+window.toggleItem=function(type,i,checked){lists[type][i].checked=checked;saveList(type);renderList(type);};
 window.addItem=function(type){
-  const inp=document.getElementById('new-'+type);
-  const text=inp.value.trim();
-  if(!text)return;
-  lists[type].push({text,checked:false});
-  saveList(type);renderList(type);
-  inp.value='';inp.focus();
+  const inp=document.getElementById('new-'+type);const text=inp.value.trim();if(!text)return;
+  lists[type].push({text,checked:false});saveList(type);renderList(type);inp.value='';inp.focus();
 };
-
-window.removeItem=function(type,i){
-  lists[type].splice(i,1);
-  saveList(type);renderList(type);
-};
-
-window.resetChecks=function(type){
-  lists[type].forEach(i=>i.checked=false);
-  saveList(type);renderList(type);
-  showToast('Avhukinger nullstilt!');
-};
+window.removeItem=function(type,i){lists[type].splice(i,1);saveList(type);renderList(type);};
+window.resetChecks=function(type){lists[type].forEach(i=>i.checked=false);saveList(type);renderList(type);showToast('Avhukinger nullstilt!');};
 
 // ─── Oversikt ─────────────────────────────────────────────────────────────
 function parseNorDate(s){const[d,m,y]=s.split('.');return new Date(+y,+m-1,+d);}
-
 function renderOversikt(){
   const el=document.getElementById('oversikt-content');if(!el)return;
   const years=[...new Set(SCHEDULE.map(s=>s.year))];
-  const today=new Date();
-  let html='';
+  const today=new Date();let html='';
   years.forEach(y=>{
     const rows=SCHEDULE.filter(s=>s.year===y);
-    html+=`<div style="margin-bottom:1.5rem">
-      <div style="font-size:1rem;font-weight:600;color:#1a6b8a;margin-bottom:.5rem;padding-bottom:.4rem;border-bottom:2px solid #e8f4f8">${y}</div>
-      <div style="overflow-x:auto">
-      <table style="width:100%;border-collapse:collapse;font-size:.85rem">
-        <thead><tr style="background:#f8f6f2">
-          <th style="text-align:left;padding:.5rem .7rem;font-weight:500;color:#666;border-bottom:1px solid #e8e4df">Periode</th>
-          <th style="text-align:left;padding:.5rem .7rem;font-weight:500;color:#666;border-bottom:1px solid #e8e4df">Fra</th>
-          <th style="text-align:left;padding:.5rem .7rem;font-weight:500;color:#666;border-bottom:1px solid #e8e4df">Til</th>
-          <th style="text-align:left;padding:.5rem .7rem;font-weight:500;color:#666;border-bottom:1px solid #e8e4df">Familie</th>
-        </tr></thead><tbody>`;
+    html+=`<div style="margin-bottom:1.5rem"><div style="font-size:1rem;font-weight:600;color:#1a6b8a;margin-bottom:.5rem;padding-bottom:.4rem;border-bottom:2px solid #e8f4f8">${y}</div><div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:.85rem"><thead><tr style="background:#f8f6f2"><th style="text-align:left;padding:.5rem .7rem;font-weight:500;color:#666;border-bottom:1px solid #e8e4df">Periode</th><th style="text-align:left;padding:.5rem .7rem;font-weight:500;color:#666;border-bottom:1px solid #e8e4df">Fra</th><th style="text-align:left;padding:.5rem .7rem;font-weight:500;color:#666;border-bottom:1px solid #e8e4df">Til</th><th style="text-align:left;padding:.5rem .7rem;font-weight:500;color:#666;border-bottom:1px solid #e8e4df">Familie</th></tr></thead><tbody>`;
     rows.forEach(r=>{
       const c=U_COLORS[r.bruker]||{bg:'#f5f0eb',border:'#ddd',text:'#333'};
       const u=USERS.find(x=>x.id===r.bruker);
       const isNow=parseNorDate(r.fra)<=today&&today<parseNorDate(r.til);
-      html+=`<tr style="background:${isNow?c.bg:'transparent'};border-bottom:1px solid #f0ece8">
-        <td style="padding:.5rem .7rem;font-weight:${isNow?'600':'400'}">${r.periode}${isNow?' <span style="font-size:.7rem;background:#1a6b8a;color:#fff;border-radius:10px;padding:.1rem .5rem;margin-left:.3rem">Nå</span>':''}</td>
-        <td style="padding:.5rem .7rem">${r.fra}</td>
-        <td style="padding:.5rem .7rem">${r.til}</td>
-        <td style="padding:.5rem .7rem"><span style="background:${c.bg};color:${c.text};border:1px solid ${c.border};border-radius:20px;padding:.15rem .7rem;font-size:.78rem;font-weight:500">${r.bruker} – ${u?u.name.split(' ')[0]:r.bruker}</span></td>
-      </tr>`;
+      html+=`<tr style="background:${isNow?c.bg:'transparent'};border-bottom:1px solid #f0ece8"><td style="padding:.5rem .7rem;font-weight:${isNow?'600':'400'}">${r.periode}${isNow?' <span style="font-size:.7rem;background:#1a6b8a;color:#fff;border-radius:10px;padding:.1rem .5rem;margin-left:.3rem">Nå</span>':''}</td><td style="padding:.5rem .7rem">${r.fra}</td><td style="padding:.5rem .7rem">${r.til}</td><td style="padding:.5rem .7rem"><span style="background:${c.bg};color:${c.text};border:1px solid ${c.border};border-radius:20px;padding:.15rem .7rem;font-size:.78rem;font-weight:500">${r.bruker} – ${u?u.name.split(' ')[0]:r.bruker}</span></td></tr>`;
     });
     html+=`</tbody></table></div></div>`;
   });
@@ -1062,13 +1034,20 @@ window.showPage=function(p,btn){
   if(btn)btn.classList.add('active');
   if(p==='bookings')renderAllBookings();
   if(p==='oversikt')renderOversikt();
-  if(p==='sjekkliste'){renderList('innsjekk');renderList('utsjekk');renderList('vedlikehold');}
   if(p==='admin')renderAdmin();
+  if(p==='bilder'){loadImages('galleri');loadImages('innsjekk');loadImages('utsjekk');}
+  if(p==='sjekkliste'){renderList('innsjekk');renderList('utsjekk');renderList('vedlikehold');}
 };
 window.switchTab=function(t,btn){
   document.querySelectorAll('.tab').forEach(e=>e.classList.remove('active'));
   document.querySelectorAll('.section').forEach(e=>e.classList.remove('active'));
   btn.classList.add('active');document.getElementById('tab-'+t).classList.add('active');
+  if(t==='galleri')loadImages('galleri');
+  if(t==='innsjekk-bilder')loadImages('innsjekk');
+  if(t==='utsjekk-bilder')loadImages('utsjekk');
+  if(t==='innsjekk-liste')renderList('innsjekk');
+  if(t==='utsjekk-liste')renderList('utsjekk');
+  if(t==='vedlikehold-liste')renderList('vedlikehold');
 };
 function showToast(msg,type=''){
   const t=document.getElementById('toast');
@@ -1076,9 +1055,7 @@ function showToast(msg,type=''){
   t.classList.add('show');setTimeout(()=>t.classList.remove('show'),3500);
 }
 
-buildLoginUI();
-startListening();
-loadPrices();
+buildLoginUI();startListening();loadPrices();
 </script>
 </body>
 </html>
