@@ -281,39 +281,51 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:#1a6b8a;box-sh
       <!-- GALLERI -->
       <div id="tab-galleri" class="section active">
         <p style="font-size:.85rem;color:#666;margin-bottom:1rem">Bilder av leiligheten. Last opp fra mobil eller PC.</p>
-        <label class="upload-box" onclick="document.getElementById('upload-galleri').click()">
+        <div class="upload-box" onclick="document.getElementById('upload-galleri').click()">
           <div style="font-size:2rem">📸</div>
           <div style="font-weight:500;margin:.3rem 0">Trykk for å laste opp bilder</div>
-          <div style="font-size:.8rem;color:#aaa">JPG, PNG – maks 10MB per bilde</div>
-          <input type="file" id="upload-galleri" accept="image/*" multiple onchange="uploadImages(this.files,'galleri')">
-        </label>
+          <div style="font-size:.8rem;color:#aaa">JPG, PNG – fra kamera eller bildebibliotek</div>
+        </div>
+        <input type="file" id="upload-galleri" accept="image/*" multiple capture="environment" style="display:none" onchange="uploadImages(this.files,'galleri')">
         <div class="progress-bar" id="prog-galleri" style="display:none"><div class="progress-fill" id="prog-fill-galleri"></div></div>
+        <div style="display:flex;gap:.5rem;margin-top:.8rem;flex-wrap:wrap">
+          <button class="btn btn-sm btn-outline" onclick="document.getElementById('upload-galleri').removeAttribute('capture');document.getElementById('upload-galleri').click()">🖼️ Velg fra bibliotek</button>
+          <button class="btn btn-sm" onclick="document.getElementById('upload-galleri').setAttribute('capture','environment');document.getElementById('upload-galleri').click()">📷 Ta bilde nå</button>
+        </div>
         <div class="img-grid" id="grid-galleri"><div class="loading">Laster bilder...</div></div>
       </div>
 
       <!-- INNSJEKK BILDER -->
       <div id="tab-innsjekk-bilder" class="section">
         <p style="font-size:.85rem;color:#666;margin-bottom:1rem">Dokumentasjon ved ankomst. Last opp bilder som viser leilighetens tilstand.</p>
-        <label class="upload-box" onclick="document.getElementById('upload-innsjekk').click()">
+        <div class="upload-box" onclick="document.getElementById('upload-innsjekk').click()">
           <div style="font-size:2rem">📷</div>
           <div style="font-weight:500;margin:.3rem 0">Last opp innsjekk-bilder</div>
           <div style="font-size:.8rem;color:#aaa">Dato og ditt navn lagres automatisk</div>
-          <input type="file" id="upload-innsjekk" accept="image/*" multiple onchange="uploadImages(this.files,'innsjekk')">
-        </label>
+        </div>
+        <input type="file" id="upload-innsjekk" accept="image/*" multiple style="display:none" onchange="uploadImages(this.files,'innsjekk')">
         <div class="progress-bar" id="prog-innsjekk" style="display:none"><div class="progress-fill" id="prog-fill-innsjekk"></div></div>
+        <div style="display:flex;gap:.5rem;margin-top:.8rem;flex-wrap:wrap">
+          <button class="btn btn-sm btn-outline" onclick="document.getElementById('upload-innsjekk').removeAttribute('capture');document.getElementById('upload-innsjekk').click()">🖼️ Velg fra bibliotek</button>
+          <button class="btn btn-sm" onclick="document.getElementById('upload-innsjekk').setAttribute('capture','environment');document.getElementById('upload-innsjekk').click()">📷 Ta bilde nå</button>
+        </div>
         <div class="img-grid" id="grid-innsjekk"><div class="loading">Laster bilder...</div></div>
       </div>
 
       <!-- UTSJEKK BILDER -->
       <div id="tab-utsjekk-bilder" class="section">
         <p style="font-size:.85rem;color:#666;margin-bottom:1rem">Dokumentasjon ved avreise. Last opp bilder som viser leilighetens tilstand.</p>
-        <label class="upload-box" onclick="document.getElementById('upload-utsjekk').click()">
+        <div class="upload-box" onclick="document.getElementById('upload-utsjekk').click()">
           <div style="font-size:2rem">📷</div>
           <div style="font-weight:500;margin:.3rem 0">Last opp utsjekk-bilder</div>
           <div style="font-size:.8rem;color:#aaa">Dato og ditt navn lagres automatisk</div>
-          <input type="file" id="upload-utsjekk" accept="image/*" multiple onchange="uploadImages(this.files,'utsjekk')">
-        </label>
+        </div>
+        <input type="file" id="upload-utsjekk" accept="image/*" multiple style="display:none" onchange="uploadImages(this.files,'utsjekk')">
         <div class="progress-bar" id="prog-utsjekk" style="display:none"><div class="progress-fill" id="prog-fill-utsjekk"></div></div>
+        <div style="display:flex;gap:.5rem;margin-top:.8rem;flex-wrap:wrap">
+          <button class="btn btn-sm btn-outline" onclick="document.getElementById('upload-utsjekk').removeAttribute('capture');document.getElementById('upload-utsjekk').click()">🖼️ Velg fra bibliotek</button>
+          <button class="btn btn-sm" onclick="document.getElementById('upload-utsjekk').setAttribute('capture','environment');document.getElementById('upload-utsjekk').click()">📷 Ta bilde nå</button>
+        </div>
         <div class="img-grid" id="grid-utsjekk"><div class="loading">Laster bilder...</div></div>
       </div>
     </div>
