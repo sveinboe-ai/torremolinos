@@ -140,7 +140,7 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:#1a6b8a;box-sh
       <p class="error-msg" id="pin-error"></p>
       <button style="background:none;border:none;color:#aaa;font-size:.8rem;cursor:pointer;margin-top:.5rem" onclick="resetLogin()">← Velg annen bruker</button>
     </div>
-    <p style="font-size:.72rem;color:#ccc;margin-top:2rem">Versjon 82 · Juni 2026</p>
+    <p style="font-size:.72rem;color:#ccc;margin-top:2rem">Versjon 85 · Juni 2026</p>
   </div>
 </div>
 
@@ -208,14 +208,14 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:#1a6b8a;box-sh
     <button class="btn btn-outline btn-sm" style="margin:0" onclick="logout()">Logg ut</button>
   </div>
   <nav>
-    <button class="active" onclick="showPage('cal',this)">Kalender</button>
-    <button onclick="showPage('bookings',this)">Bookinger</button>
+    <button onclick="showPage('cal',this)">Kalender</button>
+    <button id="nav-bookings" onclick="showPage('bookings',this)">Bookinger</button>
     <button onclick="showPage('anbefalinger',this)">⭐ Anbefalinger</button>
-    <button onclick="showPage('bilder',this)">📸 Bilder</button>
-    <button onclick="showPage('oversikt',this)">Oversikt</button>
+    <button id="nav-bilder" onclick="showPage('bilder',this)">📸 Bilder</button>
+    <button id="nav-oversikt" onclick="showPage('oversikt',this)">Oversikt</button>
     <button onclick="showPage('sjekkliste',this)">Sjekklister</button>
     <button onclick="showPage('info',this)">Info</button>
-    <button id="admin-nav-btn" style="display:none" onclick="showPage('admin',this)">Admin ⚙️ <span id="notif-badge" style="display:none;background:#c0392b;color:#fff;border-radius:50%;padding:0 .4rem;font-size:.7rem;margin-left:.2rem">0</span></button>
+    <button id="admin-nav-btn" onclick="showPage('admin',this)">Admin ⚙️ <span id="notif-badge" style="display:none;background:#c0392b;color:#fff;border-radius:50%;padding:0 .4rem;font-size:.7rem;margin-left:.2rem">0</span></button>
   </nav>
 
   <!-- KALENDER -->
@@ -921,18 +921,22 @@ function initApp(){
   const chip=document.getElementById('user-chip-bar');
   chip.className='user-chip'+(isGuest?'':' admin-chip');
   chip.innerHTML=`<span style="width:28px;height:28px;border-radius:50%;background:${u.bg};color:${u.color};display:inline-flex;align-items:center;justify-content:center;font-weight:600;font-size:.78rem">${isGuest?'🏖️':u.initials}</span> ${isGuest?'Gjest':u.name+' · Admin'}`;
-  // Vis/skjul nav-knapper basert på rolle
-  document.getElementById('admin-nav-btn').style.display=isGuest?'none':'block';
+  // Skjul/vis nav-knapper basert på rolle
+  const guestHide=['nav-bookings','nav-bilder','nav-oversikt','admin-nav-btn'];
+  guestHide.forEach(id=>{
+    const el=document.getElementById(id);
+    if(el) el.style.display=isGuest?'none':'block';
+  });
+  // Sett alle knapper til synlige for admin
   document.querySelectorAll('nav button').forEach(btn=>{
-    const page=btn.getAttribute('onclick')?.match(/showPage\('(\w+)'/)?.[1];
-    if(!page)return;
-    if(isGuest&&['bookings','bilder','oversikt'].includes(page)) btn.style.display='none';
-    else btn.style.display='';
+    if(!guestHide.includes(btn.id)) btn.style.display='block';
   });
   const whoSel=document.getElementById('f-who');if(whoSel)whoSel.value=u.id;
   renderCal();renderPriceDisplay();
   if(!isGuest){renderAllBookings();renderAdmin();}
-  showPage('cal',document.querySelector('nav button:not([style*="none"])'));
+  // Finn første synlige nav-knapp
+  const firstBtn=document.querySelector('nav button:not([style*="display: none"]):not([style*="display:none"])');
+  showPage('cal', firstBtn||document.querySelector('nav button'));
 }
 
 // ─── Calendar ─────────────────────────────────────────────────────────────
