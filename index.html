@@ -140,7 +140,7 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:#1a6b8a;box-sh
       <p class="error-msg" id="pin-error"></p>
       <button style="background:none;border:none;color:#aaa;font-size:.8rem;cursor:pointer;margin-top:.5rem" onclick="resetLogin()">← Velg annen bruker</button>
     </div>
-    <p style="font-size:.72rem;color:#ccc;margin-top:2rem">Versjon 74 · Juni 2026</p>
+    <p style="font-size:.72rem;color:#ccc;margin-top:2rem">Versjon 82 · Juni 2026</p>
   </div>
 </div>
 
@@ -598,7 +598,8 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:#1a6b8a;box-sh
 
     <div class="card">
       <h2>💰 Priser</h2>
-      <div id="price-display"></div>
+      <div id="price-display" style="display:none"></div>
+      <div id="price-display-guest" style="display:none"><p style="font-size:.88rem;color:#888">Ta kontakt med utleier for prisinformasjon.</p></div>
       <p style="font-size:.82rem;color:#888;margin-top:.8rem">Minimumsleie 4 netter. Depositum: kr 2 000 (tilbakebetales).</p>
     </div>
   </div>
@@ -671,6 +672,7 @@ const USERS=[
   {id:'LAB',name:'Lars Arne Bø',   initials:'LAB', pin:'4815',role:'admin',color:'#2d6a4f',bg:'#d8f3dc'},
   {id:'AMB',name:'Alf Marlon Bø',  initials:'AMB', pin:'6271',role:'admin',color:'#6d4c41',bg:'#f3e5d8'},
   {id:'SMB',name:'Stig Martin Bø', initials:'SMB', pin:'9538',role:'admin',color:'#5e35b1',bg:'#ede7f6'},
+  {id:'GUEST',name:'Gjest',        initials:'G',   pin:'2001',role:'guest', color:'#888',   bg:'#f0ece8'},
 ];
 
 const U_COLORS={LAB:{bg:'#d8f3dc',border:'#74c69d',text:'#1b4332'},SMB:{bg:'#ede7f6',border:'#9c7fd4',text:'#311b92'},SB:{bg:'#e8f4f8',border:'#74b9d4',text:'#0d3d52'},AMB:{bg:'#f3e5d8',border:'#c49a78',text:'#5d2f0a'}};
@@ -839,7 +841,7 @@ window.closeLightbox=function(){
 // ─── Login ────────────────────────────────────────────────────────────────
 function buildLoginUI(){
   const btns=document.getElementById('user-btns');btns.innerHTML='';
-  USERS.forEach(u=>{
+  USERS.filter(u=>u.role!=='guest').forEach(u=>{
     const b=document.createElement('button');b.className='user-btn';b.id='ubtn-'+u.id;
     b.onclick=()=>selectUser(u.id);
     b.innerHTML=`<div class="initials" style="background:${u.bg};color:${u.color}">${u.initials}</div>
@@ -847,6 +849,15 @@ function buildLoginUI(){
       <div class="urole">Admin</div>`;
     btns.appendChild(b);
   });
+  // Gjest-knapp nederst
+  const g=document.createElement('button');
+  g.className='user-btn';g.id='ubtn-GUEST';
+  g.style.cssText='grid-column:1/-1;background:#f8f6f2;';
+  g.onclick=()=>selectUser('GUEST');
+  g.innerHTML=`<div class="initials" style="background:#f0ece8;color:#888;margin:0 auto .4rem">🏖️</div>
+    <div class="uname">Gjest</div>
+    <div class="urole">Leietaker</div>`;
+  btns.appendChild(g);
 }
 
 function selectUser(id){
@@ -906,13 +917,22 @@ window.logout=function(){
 
 function initApp(){
   const u=currentUser;
+  const isGuest=u.role==='guest';
   const chip=document.getElementById('user-chip-bar');
-  chip.className='user-chip admin-chip';
-  chip.innerHTML=`<span style="width:28px;height:28px;border-radius:50%;background:${u.bg};color:${u.color};display:inline-flex;align-items:center;justify-content:center;font-weight:600;font-size:.78rem">${u.initials}</span> ${u.name} · Admin`;
-  document.getElementById('admin-nav-btn').style.display='block';
+  chip.className='user-chip'+(isGuest?'':' admin-chip');
+  chip.innerHTML=`<span style="width:28px;height:28px;border-radius:50%;background:${u.bg};color:${u.color};display:inline-flex;align-items:center;justify-content:center;font-weight:600;font-size:.78rem">${isGuest?'🏖️':u.initials}</span> ${isGuest?'Gjest':u.name+' · Admin'}`;
+  // Vis/skjul nav-knapper basert på rolle
+  document.getElementById('admin-nav-btn').style.display=isGuest?'none':'block';
+  document.querySelectorAll('nav button').forEach(btn=>{
+    const page=btn.getAttribute('onclick')?.match(/showPage\('(\w+)'/)?.[1];
+    if(!page)return;
+    if(isGuest&&['bookings','bilder','oversikt'].includes(page)) btn.style.display='none';
+    else btn.style.display='';
+  });
   const whoSel=document.getElementById('f-who');if(whoSel)whoSel.value=u.id;
-  renderCal();renderPriceDisplay();renderAllBookings();renderAdmin();
-  showPage('cal',document.querySelector('nav button'));
+  renderCal();renderPriceDisplay();
+  if(!isGuest){renderAllBookings();renderAdmin();}
+  showPage('cal',document.querySelector('nav button:not([style*="none"])'));
 }
 
 // ─── Calendar ─────────────────────────────────────────────────────────────
@@ -966,13 +986,14 @@ function calcStay(s,e){let total=0,nights=0,cur=new Date(s);const end=new Date(e
 function updateSummary(){
   const el=document.getElementById('date-summary');
   const fs=document.getElementById('booking-form-section');
+  const isGuest=currentUser?.role==='guest';
   if(selStart&&selEnd){
     const{total,nights}=calcStay(selStart,selEnd);
     if(nights<prices.minNights){el.textContent=`Minimumsleie er ${prices.minNights} netter.`;el.style.color='#c0392b';fs.style.display='none';return;}
     el.style.color='#1a6b8a';
     el.textContent=`Innsjekk: ${fmt(selStart)}  →  Utsjekk: ${fmt(selEnd)}  (${nights} netter)`;
-    fs.style.display='block';
-    document.getElementById('price-box').innerHTML=`
+    fs.style.display=isGuest?'none':'block';
+    if(!isGuest) document.getElementById('price-box').innerHTML=`
       <div class="price-row"><span>Leie (${nights} netter)</span><span>kr ${total.toLocaleString('no-NO')}</span></div>
       <div class="price-row"><span>Rengjøring</span><span>kr ${prices.clean.toLocaleString('no-NO')}</span></div>
       <div class="price-row total"><span>Totalt</span><span>kr ${(total+prices.clean).toLocaleString('no-NO')}</span></div>`;
@@ -1112,7 +1133,17 @@ window.savePrices=async function(){
   renderPriceDisplay();updateSummary();showToast('Priser lagret! ☁️');
 };
 function renderPriceDisplay(){
-  document.getElementById('price-display').innerHTML=`
+  const isGuest=currentUser?.role==='guest';
+  const el=document.getElementById('price-display');
+  const elGuest=document.getElementById('price-display-guest');
+  if(isGuest){
+    if(el)el.style.display='none';
+    if(elGuest)elGuest.style.display='block';
+    return;
+  }
+  if(el)el.style.display='block';
+  if(elGuest)elGuest.style.display='none';
+  el.innerHTML=`
     <div class="summary-row"><span>Lavsesong (jan–apr, nov–des)</span><span><b>kr ${prices.low.toLocaleString('no-NO')}/natt</b></span></div>
     <div class="summary-row"><span>Midtsesong (mai–jun, sep–okt)</span><span><b>kr ${prices.mid.toLocaleString('no-NO')}/natt</b></span></div>
     <div class="summary-row"><span>Høysesong (jul–aug)</span><span><b>kr ${prices.high.toLocaleString('no-NO')}/natt</b></span></div>
