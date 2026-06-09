@@ -140,7 +140,7 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:#1a6b8a;box-sh
       <p class="error-msg" id="pin-error"></p>
       <button style="background:none;border:none;color:#aaa;font-size:.8rem;cursor:pointer;margin-top:.5rem" onclick="resetLogin()">← Velg annen bruker</button>
     </div>
-    <p style="font-size:.72rem;color:#ccc;margin-top:2rem">Versjon 55 · Juni 2026</p>
+    <p style="font-size:.72rem;color:#ccc;margin-top:2rem">Versjon 68 · Juni 2026</p>
   </div>
 </div>
 
@@ -210,6 +210,7 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:#1a6b8a;box-sh
   <nav>
     <button class="active" onclick="showPage('cal',this)">Kalender</button>
     <button onclick="showPage('bookings',this)">Bookinger</button>
+    <button onclick="showPage('anbefalinger',this)">⭐ Anbefalinger</button>
     <button onclick="showPage('bilder',this)">📸 Bilder</button>
     <button onclick="showPage('oversikt',this)">Oversikt</button>
     <button onclick="showPage('sjekkliste',this)">Sjekklister</button>
@@ -328,6 +329,65 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:#1a6b8a;box-sh
           <button class="btn btn-sm" onclick="document.getElementById('upload-utsjekk').setAttribute('capture','environment');document.getElementById('upload-utsjekk').click()">📷 Ta bilde nå</button>
         </div>
         <div class="img-grid" id="grid-utsjekk"><div class="loading">Laster bilder...</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ANBEFALINGER -->
+  <div id="page-anbefalinger" class="page">
+    <div class="card">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;flex-wrap:wrap;gap:.5rem">
+        <h2 style="margin:0">⭐ Våre anbefalinger</h2>
+        <button class="btn btn-sm" onclick="openTips()">+ Legg til anbefaling</button>
+      </div>
+      <div class="tabs">
+        <button class="tab active" onclick="switchTab('tip-restauranter',this);renderTips('restauranter')">🍽️ Mat</button>
+        <button class="tab" onclick="switchTab('tip-barer',this);renderTips('barer')">🍺 Bar/Pub</button>
+        <button class="tab" onclick="switchTab('tip-strender',this);renderTips('strender')">🏖️ Strand</button>
+        <button class="tab" onclick="switchTab('tip-aktiviteter',this);renderTips('aktiviteter')">🎭 Aktiviteter</button>
+        <button class="tab" onclick="switchTab('tip-shopping',this);renderTips('shopping')">🛍️ Shopping</button>
+      </div>
+      <div id="tab-tip-restauranter" class="section active"><div id="tips-restauranter"><div class="loading">Laster...</div></div></div>
+      <div id="tab-tip-barer" class="section"><div id="tips-barer"><div class="loading">Laster...</div></div></div>
+      <div id="tab-tip-strender" class="section"><div id="tips-strender"><div class="loading">Laster...</div></div></div>
+      <div id="tab-tip-aktiviteter" class="section"><div id="tips-aktiviteter"><div class="loading">Laster...</div></div></div>
+      <div id="tab-tip-shopping" class="section"><div id="tips-shopping"><div class="loading">Laster...</div></div></div>
+    </div>
+  </div>
+
+  <!-- TIPS MODAL -->
+  <div id="tips-modal" class="modal-overlay">
+    <div class="modal-box">
+      <h2 style="margin-bottom:1rem">Legg til anbefaling</h2>
+      <div class="form-grid">
+        <div><label>Kategori</label>
+          <select id="tip-kategori">
+            <option value="restauranter">🍽️ Restaurant</option>
+            <option value="barer">🍺 Bar/Pub</option>
+            <option value="strender">🏖️ Strand</option>
+            <option value="aktiviteter">🎭 Aktivitet</option>
+            <option value="shopping">🛍️ Shopping</option>
+          </select>
+        </div>
+        <div><label>Navn på sted</label><input type="text" id="tip-navn" placeholder="F.eks. La Bodega"></div>
+        <div class="form-full"><label>Adresse</label><input type="text" id="tip-adresse" placeholder="F.eks. Calle San Miguel 12"></div>
+        <div class="form-full"><label>Beskrivelse / hvorfor anbefaler du det?</label><textarea id="tip-beskrivelse" rows="3" placeholder="Fantastisk seafood, god stemning, rimelige priser..."></textarea></div>
+        <div><label>Vurdering</label>
+          <select id="tip-rating">
+            <option value="5">⭐⭐⭐⭐⭐ Fantastisk</option>
+            <option value="4">⭐⭐⭐⭐ Veldig bra</option>
+            <option value="3">⭐⭐⭐ Bra</option>
+            <option value="2">⭐⭐ Greit</option>
+            <option value="1">⭐ Skuffende</option>
+          </select>
+        </div>
+        <div><label>Bilde (valgfritt)</label>
+          <input type="file" id="tip-bilde" accept="image/*" style="padding:.4rem">
+        </div>
+      </div>
+      <div style="display:flex;gap:.8rem;margin-top:1rem">
+        <button class="btn" onclick="saveTip()">Lagre anbefaling</button>
+        <button class="btn btn-outline" onclick="closeTips()">Avbryt</button>
       </div>
     </div>
   </div>
@@ -457,7 +517,7 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:#1a6b8a;box-sh
       <h2>🌍 I nærheten</h2>
       <p style="font-size:.85rem;color:#666;margin-bottom:1rem">Utforsk det beste Torremolinos har å by på – lenker åpner TripAdvisor.</p>
       <div style="display:flex;flex-direction:column;gap:.7rem">
-        <a href="https://www.tripadvisor.com/Restaurants-g187443-Torremolinos_Costa_del_Sol_Province_of_Malaga_Andalucia.html" target="_blank"
+        <a href="https://www.tripadvisor.com/Restaurants-g187440-Torremolinos_Costa_del_Sol_Province_of_Malaga_Andalucia.html" target="_blank"
           style="display:flex;align-items:center;gap:1rem;background:#f8f6f2;border-radius:12px;padding:1rem;text-decoration:none;border:1px solid #e8e4df;transition:.2s">
           <span style="font-size:1.8rem">🍽️</span>
           <div>
@@ -466,7 +526,7 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:#1a6b8a;box-sh
           </div>
           <span style="margin-left:auto;color:#1a6b8a;font-size:.8rem">TripAdvisor →</span>
         </a>
-        <a href="https://www.tripadvisor.com/Attractions-g187443-Activities-c47-Torremolinos_Costa_del_Sol_Province_of_Malaga_Andalucia.html" target="_blank"
+        <a href="https://www.tripadvisor.com/Attractions-g187440-Activities-Torremolinos_Costa_del_Sol_Province_of_Malaga_Andalucia.html" target="_blank"
           style="display:flex;align-items:center;gap:1rem;background:#f8f6f2;border-radius:12px;padding:1rem;text-decoration:none;border:1px solid #e8e4df;transition:.2s">
           <span style="font-size:1.8rem">🎭</span>
           <div>
@@ -475,7 +535,7 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:#1a6b8a;box-sh
           </div>
           <span style="margin-left:auto;color:#1a6b8a;font-size:.8rem">TripAdvisor →</span>
         </a>
-        <a href="https://www.tripadvisor.com/Attractions-g187443-Activities-c26-Torremolinos_Costa_del_Sol_Province_of_Malaga_Andalucia.html" target="_blank"
+        <a href="https://www.tripadvisor.com/Attractions-g187440-Activities-c26-Torremolinos_Costa_del_Sol_Province_of_Malaga_Andalucia.html" target="_blank"
           style="display:flex;align-items:center;gap:1rem;background:#f8f6f2;border-radius:12px;padding:1rem;text-decoration:none;border:1px solid #e8e4df;transition:.2s">
           <span style="font-size:1.8rem">🛍️</span>
           <div>
@@ -1022,6 +1082,94 @@ window.addBlock=async function(){
   }catch(e){showToast('Feil: '+e.message,'error');}
 };
 
+// ─── Anbefalinger ─────────────────────────────────────────────────────────
+window.openTips=function(){document.getElementById('tips-modal').style.display='block';};
+window.closeTips=function(){document.getElementById('tips-modal').style.display='none';};
+
+window.saveTip=async function(){
+  const navn=document.getElementById('tip-navn').value.trim();
+  if(!navn)return showToast('Skriv inn navn på stedet','error');
+  const kat=document.getElementById('tip-kategori').value;
+  const tip={
+    navn, kat,
+    adresse:document.getElementById('tip-adresse').value.trim(),
+    beskrivelse:document.getElementById('tip-beskrivelse').value.trim(),
+    rating:+document.getElementById('tip-rating').value,
+    userId:currentUser.id,
+    userInitials:currentUser.initials,
+    createdAt:new Date().toISOString(),
+    bildeUrl:''
+  };
+  // Last opp bilde hvis valgt
+  const bildeInput=document.getElementById('tip-bilde');
+  if(bildeInput.files.length){
+    const file=bildeInput.files[0];
+    const path=`tips/${kat}/${Date.now()}_${file.name}`;
+    const storageRef=ref(storage,path);
+    await new Promise((res,rej)=>{
+      const task=uploadBytesResumable(storageRef,file);
+      task.on('state_changed',null,rej,async()=>{
+        tip.bildeUrl=await getDownloadURL(storageRef);
+        res();
+      });
+    });
+  }
+  try{
+    await addDoc(collection(db,'tips'),tip);
+    closeTips();
+    document.getElementById('tip-navn').value='';
+    document.getElementById('tip-adresse').value='';
+    document.getElementById('tip-beskrivelse').value='';
+    document.getElementById('tip-bilde').value='';
+    document.getElementById('tip-rating').value='5';
+    showToast('Anbefaling lagret! ⭐');
+    renderTips(kat);
+  }catch(e){showToast('Feil: '+e.message,'error');}
+};
+
+async function renderTips(kat){
+  const el=document.getElementById('tips-'+kat);if(!el)return;
+  el.innerHTML='<div class="loading">Laster...</div>';
+  try{
+    const snap=await getDocs(query(collection(db,'tips'),orderBy('createdAt','desc')));
+    const tips=snap.docs.map(d=>({...d.data(),firestoreId:d.id})).filter(t=>t.kat===kat);
+    if(!tips.length){el.innerHTML='<p style="color:#aaa;font-size:.88rem;padding:.5rem 0">Ingen anbefalinger ennå – vær den første! 😊</p>';return;}
+    el.innerHTML='';
+    tips.forEach(t=>{
+      const u=USERS.find(x=>x.id===t.userId)||{initials:'?',color:'#888',bg:'#eee'};
+      const stars='⭐'.repeat(t.rating);
+      const div=document.createElement('div');
+      div.style.cssText='border:1px solid #e8e4df;border-radius:12px;overflow:hidden;margin-bottom:.8rem';
+      div.innerHTML=`
+        ${t.bildeUrl?`<img src="${t.bildeUrl}" style="width:100%;height:160px;object-fit:cover;display:block" onclick="openLightbox('${t.bildeUrl}')" loading="lazy">`:''}
+        <div style="padding:1rem">
+          <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:.5rem">
+            <div>
+              <div style="font-weight:600;font-size:1rem">${t.navn}</div>
+              ${t.adresse?`<div style="font-size:.8rem;color:#888;margin:.2rem 0">📍 ${t.adresse}</div>`:''}
+              <div style="font-size:.85rem;margin:.1rem 0">${stars}</div>
+            </div>
+            <div style="display:flex;align-items:center;gap:.4rem;flex-shrink:0">
+              <div style="width:28px;height:28px;border-radius:50%;background:${u.bg};color:${u.color};display:flex;align-items:center;justify-content:center;font-weight:600;font-size:.72rem">${u.initials}</div>
+              <button class="del-btn" onclick="deleteTip('${t.firestoreId}','${kat}','${t.bildeUrl}')">Slett</button>
+            </div>
+          </div>
+          ${t.beskrivelse?`<p style="font-size:.88rem;color:#555;margin-top:.6rem;line-height:1.6">${t.beskrivelse}</p>`:''}
+        </div>`;
+      el.appendChild(div);
+    });
+  }catch(e){el.innerHTML='<p style="color:#c0392b;font-size:.88rem">Kunne ikke laste anbefalinger.</p>';}
+}
+
+window.deleteTip=async function(firestoreId,kat,bildeUrl){
+  try{
+    await deleteDoc(doc(db,'tips',firestoreId));
+    if(bildeUrl){try{await deleteObject(ref(storage,bildeUrl));}catch(e){}}
+    showToast('Anbefaling slettet!');
+    renderTips(kat);
+  }catch(e){showToast('Feil ved sletting','error');}
+};
+
 // ─── Varsler ──────────────────────────────────────────────────────────────
 let lastSeenTimestamp = localStorage.getItem('trm-last-seen') || '1970-01-01T00:00:00.000Z';
 let unseenCount = 0;
@@ -1135,7 +1283,7 @@ window.showPage=function(p,btn){
   document.querySelectorAll('nav button').forEach(e=>e.classList.remove('active'));
   document.getElementById('page-'+p).classList.add('active');
   if(btn)btn.classList.add('active');
-  if(p==='bookings')renderAllBookings();
+  if(p==='anbefalinger')renderTips('restauranter');
   if(p==='oversikt')renderOversikt();
   if(p==='admin'){renderAdmin();checkNotifications();renderNotifList();markAllSeen();}
   if(p==='bilder'){loadImages('galleri');loadImages('innsjekk');loadImages('utsjekk');}
