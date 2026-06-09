@@ -213,7 +213,7 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:#1a6b8a;box-sh
     <button onclick="showPage('oversikt',this)">Oversikt</button>
     <button onclick="showPage('sjekkliste',this)">Sjekklister</button>
     <button onclick="showPage('info',this)">Info</button>
-    <button id="admin-nav-btn" style="display:none" onclick="showPage('admin',this)">Admin ⚙️</button>
+    <button id="admin-nav-btn" style="display:none" onclick="showPage('admin',this)">Admin ⚙️ <span id="notif-badge" style="display:none;background:#c0392b;color:#fff;border-radius:50%;padding:0 .4rem;font-size:.7rem;margin-left:.2rem">0</span></button>
   </nav>
 
   <!-- KALENDER -->
@@ -610,7 +610,7 @@ function startListening(){
   onSnapshot(q,snap=>{
     bookings=snap.docs.map(d=>({...d.data(),firestoreId:d.id}));
     renderCal();renderAllBookings();
-    if(currentUser?.role==='admin')renderAdmin();
+    if(currentUser?.role==='admin'){renderAdmin();checkNotifications();}
     document.getElementById('db-status').textContent='☁️ Tilkoblet';
     document.getElementById('db-status').className='db-status db-ok';
   },()=>{
@@ -987,6 +987,62 @@ window.addBlock=async function(){
   }catch(e){showToast('Feil: '+e.message,'error');}
 };
 
+// ─── Varsler ──────────────────────────────────────────────────────────────
+let lastSeenTimestamp = localStorage.getItem('trm-last-seen') || '1970-01-01T00:00:00.000Z';
+let unseenCount = 0;
+
+function checkNotifications(){
+  if(!currentUser||currentUser.id!=='SB')return;
+  unseenCount = bookings.filter(b=>
+    b.status !== 'blocked' &&
+    b.createdAt &&
+    b.createdAt > lastSeenTimestamp &&
+    b.userId !== 'SB'
+  ).length;
+  const badge = document.getElementById('notif-badge');
+  if(badge){
+    badge.style.display = unseenCount > 0 ? 'inline' : 'none';
+    badge.textContent = unseenCount;
+  }
+}
+
+function markAllSeen(){
+  lastSeenTimestamp = new Date().toISOString();
+  localStorage.setItem('trm-last-seen', lastSeenTimestamp);
+  unseenCount = 0;
+  const badge = document.getElementById('notif-badge');
+  if(badge) badge.style.display = 'none';
+  renderNotifList();
+}
+
+function renderNotifList(){
+  const el = document.getElementById('notif-list'); if(!el)return;
+  const unseen = bookings.filter(b=>
+    b.status !== 'blocked' &&
+    b.createdAt &&
+    b.createdAt > lastSeenTimestamp &&
+    b.userId !== 'SB'
+  );
+  if(!unseen.length){ el.innerHTML=''; return; }
+  el.innerHTML=`
+    <div style="background:#fff8e8;border:1px solid #f5d78e;border-radius:10px;padding:1rem;margin-bottom:1rem">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.6rem">
+        <b style="color:#856404">🔔 ${unseen.length} ny${unseen.length>1?'e':''} booking${unseen.length>1?'er':''}</b>
+        <button class="btn btn-sm" style="margin:0;background:#856404" onclick="markAllSeen()">Merk alle som lest</button>
+      </div>
+      ${unseen.map(b=>{
+        const u=USERS.find(x=>x.id===b.userId)||{initials:'?',color:'#888',bg:'#eee'};
+        return `<div style="display:flex;align-items:center;gap:.6rem;padding:.4rem 0;border-top:1px solid #f5d78e">
+          <div style="width:30px;height:30px;border-radius:50%;background:${u.bg};color:${u.color};display:flex;align-items:center;justify-content:center;font-weight:600;font-size:.72rem;flex-shrink:0">${u.initials}</div>
+          <div>
+            <div style="font-size:.88rem;font-weight:500">${b.name}</div>
+            <div style="font-size:.78rem;color:#856404">${fmt(b.from)} → ${fmt(b.to)} · ${b.nights} netter</div>
+          </div>
+        </div>`;
+      }).join('')}
+    </div>`;
+}
+
 // ─── Sjekklister ──────────────────────────────────────────────────────────
 const DEFAULT_LISTS={
   innsjekk:['Sjekk at alle vinduer og dører lukkes','Sjekk at klimaanlegg fungerer','Sjekk vanntrykk og varmtvann','Sjekk at kjøleskap og fryser fungerer','Sjekk at alle lamper fungerer','Sjekk at TV fungerer','Kontroller håndklær og sengetøy','Sjekk balkong og utemøbler'],
@@ -1046,7 +1102,7 @@ window.showPage=function(p,btn){
   if(btn)btn.classList.add('active');
   if(p==='bookings')renderAllBookings();
   if(p==='oversikt')renderOversikt();
-  if(p==='admin')renderAdmin();
+  if(p==='admin'){renderAdmin();checkNotifications();renderNotifList();markAllSeen();}
   if(p==='bilder'){loadImages('galleri');loadImages('innsjekk');loadImages('utsjekk');}
   if(p==='sjekkliste'){renderList('innsjekk');renderList('utsjekk');renderList('vedlikehold');}
 };
