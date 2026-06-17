@@ -140,7 +140,7 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:#1a6b8a;box-sh
       <p class="error-msg" id="pin-error"></p>
       <button style="background:none;border:none;color:#aaa;font-size:.8rem;cursor:pointer;margin-top:.5rem" onclick="resetLogin()">← Velg annen bruker</button>
     </div>
-    <p style="font-size:.72rem;color:#ccc;margin-top:2rem">Versjon 85 · Juni 2026</p>
+    <p style="font-size:.72rem;color:#ccc;margin-top:2rem">Versjon 104 · Juni 2026</p>
   </div>
 </div>
 
@@ -268,6 +268,40 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:#1a6b8a;box-sh
     <div class="card">
       <h2>Alle bookinger</h2>
       <div id="all-bookings-list"><div class="loading">Laster bookinger...</div></div>
+    </div>
+  </div>
+
+  <!-- SKADE MODAL -->
+  <div id="skade-modal" class="modal-overlay">
+    <div class="modal-box">
+      <h2 style="margin-bottom:1rem">⚠️ Meld inn skade</h2>
+      <div class="form-grid">
+        <div class="form-full"><label>Hva er skadet?</label>
+          <input type="text" id="skade-tittel" placeholder="F.eks. Knust tallerken, ødelagt stol...">
+        </div>
+        <div class="form-full"><label>Hvor i leiligheten?</label>
+          <select id="skade-sted">
+            <option value="Kjøkken">🍳 Kjøkken</option>
+            <option value="Stue">📺 Stue</option>
+            <option value="Soverom 1">🛏️ Soverom 1</option>
+            <option value="Soverom 2">🛏️ Soverom 2</option>
+            <option value="Bad">🚿 Bad</option>
+            <option value="Balkong">🌅 Balkong</option>
+            <option value="Gang/Inngang">🚪 Gang/Inngang</option>
+            <option value="Annet">📍 Annet</option>
+          </select>
+        </div>
+        <div class="form-full"><label>Beskrivelse</label>
+          <textarea id="skade-beskrivelse" rows="3" placeholder="Beskriv skaden så godt som mulig..."></textarea>
+        </div>
+        <div class="form-full"><label>Bilde av skaden (anbefalt)</label>
+          <input type="file" id="skade-bilde" accept="image/*" style="padding:.4rem">
+        </div>
+      </div>
+      <div style="display:flex;gap:.8rem;margin-top:1rem">
+        <button class="btn" style="background:#c0392b" onclick="saveSkade()">⚠️ Send inn skade</button>
+        <button class="btn btn-outline" onclick="closeSkadeModal()">Avbryt</button>
+      </div>
     </div>
   </div>
 
@@ -414,6 +448,7 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:#1a6b8a;box-sh
         <button class="tab active" onclick="switchTab('innsjekk-liste',this)">✅ Innsjekk</button>
         <button class="tab" onclick="switchTab('utsjekk-liste',this)">🧹 Utsjekk</button>
         <button class="tab" onclick="switchTab('vedlikehold-liste',this)">🔧 Vedlikehold</button>
+        <button class="tab" onclick="switchTab('skade-liste',this)">⚠️ Skade</button>
       </div>
       <div id="tab-innsjekk-liste" class="section active">
         <p style="font-size:.85rem;color:#666;margin-bottom:1rem">Huk av ved ankomst. Nullstilles når du lukker siden.</p>
@@ -432,6 +467,11 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:#1a6b8a;box-sh
           <button class="btn btn-sm" onclick="addItem('utsjekk')" style="margin-top:0">+ Legg til</button>
         </div>
         <button class="btn btn-outline btn-sm" style="margin-top:.8rem" onclick="resetChecks('utsjekk')">Nullstill avhukinger</button>
+      </div>
+      <div id="tab-skade-liste" class="section">
+        <p style="font-size:.85rem;color:#666;margin-bottom:1rem">Meld inn skader eller feil i leiligheten. Alle kan melde inn, admin håndterer oppfølging.</p>
+        <button class="btn btn-sm" style="margin-bottom:1rem" onclick="openSkadeModal()">⚠️ Meld inn ny skade</button>
+        <div id="skade-liste"><div class="loading">Laster...</div></div>
       </div>
       <div id="tab-vedlikehold-liste" class="section">
         <p style="font-size:.85rem;color:#666;margin-bottom:1rem">Ting som bør sjekkes eller fikses.</p>
@@ -1254,6 +1294,101 @@ window.deleteTip=async function(firestoreId,kat,bildeUrl){
   }catch(e){showToast('Feil ved sletting','error');}
 };
 
+// ─── Skade ────────────────────────────────────────────────────────────────
+window.openSkadeModal=function(){document.getElementById('skade-modal').style.display='block';};
+window.closeSkadeModal=function(){document.getElementById('skade-modal').style.display='none';};
+
+window.saveSkade=async function(){
+  const tittel=document.getElementById('skade-tittel').value.trim();
+  if(!tittel)return showToast('Beskriv hva som er skadet','error');
+  const skade={
+    tittel,
+    sted:document.getElementById('skade-sted').value,
+    beskrivelse:document.getElementById('skade-beskrivelse').value.trim(),
+    userId:currentUser.id,
+    userName:currentUser.role==='guest'?'Gjest':currentUser.name,
+    userInitials:currentUser.role==='guest'?'🏖️':currentUser.initials,
+    status:'åpen',
+    bildeUrl:'',
+    createdAt:new Date().toISOString(),
+  };
+  const bildeInput=document.getElementById('skade-bilde');
+  if(bildeInput.files.length){
+    const file=bildeInput.files[0];
+    const path=`skader/${Date.now()}_${file.name}`;
+    const storageRef=ref(storage,path);
+    await new Promise((res,rej)=>{
+      const task=uploadBytesResumable(storageRef,file);
+      task.on('state_changed',null,rej,async()=>{
+        skade.bildeUrl=await getDownloadURL(storageRef);
+        res();
+      });
+    });
+  }
+  try{
+    await addDoc(collection(db,'skader'),skade);
+    closeSkadeModal();
+    document.getElementById('skade-tittel').value='';
+    document.getElementById('skade-beskrivelse').value='';
+    document.getElementById('skade-bilde').value='';
+    showToast('Skade innmeldt! ⚠️');
+    renderSkader();
+  }catch(e){showToast('Feil: '+e.message,'error');}
+};
+
+async function renderSkader(){
+  const el=document.getElementById('skade-liste');if(!el)return;
+  el.innerHTML='<div class="loading">Laster...</div>';
+  try{
+    const snap=await getDocs(query(collection(db,'skader'),orderBy('createdAt','desc')));
+    const skader=snap.docs.map(d=>({...d.data(),firestoreId:d.id}));
+    if(!skader.length){el.innerHTML='<p style="color:#aaa;font-size:.88rem;padding:.5rem 0">Ingen skader innmeldt. 👍</p>';return;}
+    el.innerHTML='';
+    skader.forEach(s=>{
+      const isAdmin=currentUser?.role==='admin';
+      const statusColor=s.status==='løst'?'#d4edda':'#fde8e8';
+      const statusTextColor=s.status==='løst'?'#1e7e34':'#c0392b';
+      const div=document.createElement('div');
+      div.style.cssText=`border:1px solid #e8e4df;border-radius:12px;overflow:hidden;margin-bottom:.8rem;background:${s.status==='løst'?'#f8fdf9':'#fff'}`;
+      div.innerHTML=`
+        ${s.bildeUrl?`<img src="${s.bildeUrl}" style="width:100%;height:180px;object-fit:cover;display:block;cursor:pointer" onclick="openLightbox('${s.bildeUrl}')" loading="lazy">`:''}
+        <div style="padding:1rem">
+          <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:.5rem;flex-wrap:wrap">
+            <div>
+              <div style="font-weight:600;font-size:.95rem">${s.tittel}</div>
+              <div style="font-size:.8rem;color:#888;margin:.2rem 0">📍 ${s.sted}</div>
+              <div style="font-size:.8rem;color:#888">👤 ${s.userName} · ${new Date(s.createdAt).toLocaleDateString('no-NO')}</div>
+            </div>
+            <span style="background:${statusColor};color:${statusTextColor};border-radius:20px;padding:.2rem .8rem;font-size:.78rem;font-weight:500;flex-shrink:0">${s.status==='løst'?'✅ Løst':'⚠️ Åpen'}</span>
+          </div>
+          ${s.beskrivelse?`<p style="font-size:.88rem;color:#555;margin-top:.6rem;line-height:1.6">${s.beskrivelse}</p>`:''}
+          ${isAdmin?`<div style="display:flex;gap:.5rem;margin-top:.8rem;flex-wrap:wrap">
+            ${s.status==='åpen'?`<button class="btn btn-sm" style="background:#1e7e34;margin:0" onclick="oppdaterSkadeStatus('${s.firestoreId}','løst')">✅ Merk som løst</button>`:`<button class="btn btn-sm btn-outline" style="margin:0" onclick="oppdaterSkadeStatus('${s.firestoreId}','åpen')">↩️ Gjenåpne</button>`}
+            <button class="del-btn" onclick="slettSkade('${s.firestoreId}','${s.bildeUrl}')">Slett</button>
+          </div>`:''}
+        </div>`;
+      el.appendChild(div);
+    });
+  }catch(e){el.innerHTML='<p style="color:#c0392b;font-size:.88rem">Kunne ikke laste skader.</p>';}
+}
+
+window.oppdaterSkadeStatus=async function(firestoreId,status){
+  try{
+    await setDoc(doc(db,'skader',firestoreId),{status},{merge:true});
+    showToast(status==='løst'?'Skade merket som løst! ✅':'Skade gjenåpnet');
+    renderSkader();
+  }catch(e){showToast('Feil','error');}
+};
+
+window.slettSkade=async function(firestoreId,bildeUrl){
+  try{
+    await deleteDoc(doc(db,'skader',firestoreId));
+    if(bildeUrl){try{await deleteObject(ref(storage,bildeUrl));}catch(e){}}
+    showToast('Skade slettet!');
+    renderSkader();
+  }catch(e){showToast('Feil ved sletting','error');}
+};
+
 // ─── Varsler ──────────────────────────────────────────────────────────────
 let lastSeenTimestamp = localStorage.getItem('trm-last-seen') || '1970-01-01T00:00:00.000Z';
 let unseenCount = 0;
@@ -1371,18 +1506,16 @@ window.showPage=function(p,btn){
   if(p==='oversikt')renderOversikt();
   if(p==='admin'){renderAdmin();checkNotifications();renderNotifList();markAllSeen();}
   if(p==='bilder'){loadImages('galleri');loadImages('innsjekk');loadImages('utsjekk');}
-  if(p==='sjekkliste'){renderList('innsjekk');renderList('utsjekk');renderList('vedlikehold');}
+  if(p==='sjekkliste'){renderList('innsjekk');renderList('utsjekk');renderList('vedlikehold');renderSkader();}
 };
 window.switchTab=function(t,btn){
   document.querySelectorAll('.tab').forEach(e=>e.classList.remove('active'));
   document.querySelectorAll('.section').forEach(e=>e.classList.remove('active'));
   btn.classList.add('active');document.getElementById('tab-'+t).classList.add('active');
   if(t==='galleri')loadImages('galleri');
-  if(t==='innsjekk-bilder')loadImages('innsjekk');
   if(t==='utsjekk-bilder')loadImages('utsjekk');
-  if(t==='innsjekk-liste')renderList('innsjekk');
+  if(t==='skade-liste')renderSkader();
   if(t==='utsjekk-liste')renderList('utsjekk');
-  if(t==='vedlikehold-liste')renderList('vedlikehold');
 };
 function showToast(msg,type=''){
   const t=document.getElementById('toast');
