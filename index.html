@@ -140,7 +140,7 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:#1a6b8a;box-sh
       <p class="error-msg" id="pin-error"></p>
       <button style="background:none;border:none;color:#aaa;font-size:.8rem;cursor:pointer;margin-top:.5rem" onclick="resetLogin()">← Velg annen bruker</button>
     </div>
-    <p style="font-size:.72rem;color:#ccc;margin-top:2rem">Versjon 110 · Juni 2026</p>
+    <p style="font-size:.72rem;color:#ccc;margin-top:2rem">Versjon 118 · Juni 2026</p>
   </div>
 </div>
 
@@ -1191,12 +1191,30 @@ window.saveEdit=async function(){
     phone:document.getElementById('e-phone').value,email:document.getElementById('e-email').value,
     revenue:+document.getElementById('e-revenue').value,msg:document.getElementById('e-msg').value,
     status:document.getElementById('e-status').value};
-  try{await setDoc(doc(db,'bookings',firestoreId),updated,{merge:true});closeEdit();showToast('Booking oppdatert! ☁️');}
-  catch(e){showToast('Feil: '+e.message,'error');}
+  try{
+    await setDoc(doc(db,'bookings',firestoreId),updated,{merge:true});
+    closeEdit();
+    showToast('Booking oppdatert! ☁️');
+    await sendEmail('✏️ Booking endret',{
+      navn: updated.name,
+      fra: fmt(updated.from),
+      til: fmt(updated.to),
+      ekstra: `${updated.nights} netter · ${updated.guests} gjester · kr ${updated.revenue.toLocaleString('no-NO')} · Endret av: ${currentUser.name}`
+    });
+  }catch(e){showToast('Feil: '+e.message,'error');}
 };
 window.deleteB=async function(firestoreId){
-  try{await deleteDoc(doc(db,'bookings',firestoreId));showToast('Booking slettet!');}
-  catch(e){showToast('Feil ved sletting','error');}
+  const b=bookings.find(x=>x.firestoreId===firestoreId);
+  try{
+    await deleteDoc(doc(db,'bookings',firestoreId));
+    showToast('Booking slettet!');
+    await sendEmail('🗑️ Booking slettet',{
+      navn: b?.name||'Ukjent',
+      fra: fmt(b?.from||''),
+      til: fmt(b?.to||''),
+      ekstra: `${b?.nights||0} netter · Slettet av: ${currentUser.name}`
+    });
+  }catch(e){showToast('Feil ved sletting','error');}
 };
 window.savePrices=async function(){
   prices.low=+document.getElementById('p-low').value||900;prices.mid=+document.getElementById('p-mid').value||1200;
