@@ -140,7 +140,7 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:#1a6b8a;box-sh
       <p class="error-msg" id="pin-error"></p>
       <button style="background:none;border:none;color:#aaa;font-size:.8rem;cursor:pointer;margin-top:.5rem" onclick="resetLogin()">← Velg annen bruker</button>
     </div>
-    <p style="font-size:.72rem;color:#ccc;margin-top:2rem">Versjon 123 · Juni 2026</p>
+    <p style="font-size:.72rem;color:#ccc;margin-top:2rem">Versjon 121 · Juni 2026</p>
   </div>
 </div>
 
@@ -1066,15 +1066,7 @@ function pickDate(ds,blocked){
   renderCal();
 }
 
-function kategoriNavn(kat){
-  switch(kat){
-    case '1': return 'Kategori 1 – Bø-familien';
-    case '2': return 'Kategori 2 – Barn/barnebarn';
-    case '3': return 'Kategori 3 – Venner/bonusbarn';
-    case '4': return 'Kategori 4 – Eksterne gjester';
-    default:  return 'Blandet';
-  }
-}
+function priceForDate(d){const m=d.getMonth();if(m<=3||m>=10)return prices.low;if(m<=5||m===8)return prices.mid;return prices.high;}
 function calcStay(s,e){let total=0,nights=0,cur=new Date(s);const end=new Date(e);while(cur<end){total+=priceForDate(cur);nights++;cur.setDate(cur.getDate()+1);}return{total,nights};}
 
 function calcKategoriPris(kat,nights,guests){
