@@ -140,7 +140,7 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:#1a6b8a;box-sh
       <p class="error-msg" id="pin-error"></p>
       <button style="background:none;border:none;color:#aaa;font-size:.8rem;cursor:pointer;margin-top:.5rem" onclick="resetLogin()">← Velg annen bruker</button>
     </div>
-    <p style="font-size:.72rem;color:#ccc;margin-top:2rem">Versjon 121 · Juni 2026</p>
+    <p style="font-size:.72rem;color:#ccc;margin-top:2rem">Versjon 122 · Juni 2026</p>
   </div>
 </div>
 
@@ -266,7 +266,7 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:#1a6b8a;box-sh
           </select>
         </div>
         <div class="form-full" id="gjest-relasjon-row" style="display:none">
-          <label>Hvem er gjestene? (spesifiser relasjon for hver gjest)</label>
+          <label>Spesifiser hver gjest</label>
           <div id="gjest-relasjon-liste" style="display:flex;flex-direction:column;gap:.5rem;margin-top:.4rem"></div>
         </div>
         <div><label>Telefon</label><input type="tel" id="f-phone" placeholder="+47 900 00 000"></div>
@@ -1103,47 +1103,31 @@ window.updateKategori=function(){
 
   // Vis relasjonsfelt kun for kategori 2
   if(relasjonRow&&relasjonListe){
-    if(kat==='2'){
-      relasjonRow.style.display='block';
-      const existing=relasjonListe.querySelectorAll('select').length;
-      if(existing!==guests){
-        relasjonListe.innerHTML='';
-        for(let i=1;i<=guests;i++){
-          const wrap=document.createElement('div');
-          wrap.style.cssText='display:flex;align-items:center;gap:.5rem';
-          wrap.innerHTML=`<span style="font-size:.82rem;color:#555;width:60px;flex-shrink:0">Gjest ${i}:</span>
-            <select id="relasjon-${i}" style="flex:1;padding:.5rem .7rem;border:1px solid #d8d4cf;border-radius:8px;font-size:.88rem">
-              <option value="barn">👨‍👧 Barn</option>
-              <option value="barnebarn">👶 Barnebarn</option>
-              <option value="fosterbarn">🏠 Fosterbarn</option>
-              <option value="ektefelle">💑 Ektefelle/Kjæreste</option>
-            </select>`;
-          relasjonListe.appendChild(wrap);
-        }
-      }
-    } else if(kat==='3'){
-      relasjonRow.style.display='block';
-      const existing=relasjonListe.querySelectorAll('select').length;
-      if(existing!==guests){
-        relasjonListe.innerHTML='';
-        for(let i=1;i<=guests;i++){
-          const wrap=document.createElement('div');
-          wrap.style.cssText='display:flex;align-items:center;gap:.5rem';
-          wrap.innerHTML=`<span style="font-size:.82rem;color:#555;width:60px;flex-shrink:0">Gjest ${i}:</span>
-            <select id="relasjon-${i}" style="flex:1;padding:.5rem .7rem;border:1px solid #d8d4cf;border-radius:8px;font-size:.88rem">
-              <option value="venn">👫 Venn</option>
-              <option value="bonusbarn">👨‍👧 Bonusbarn</option>
-              <option value="bonusbarnebarn">👶 Bonusbarnebarn</option>
-              <option value="ektefelle">💑 Ektefelle/Kjæreste</option>
-              <option value="annet">📍 Annet</option>
-            </select>`;
-          relasjonListe.appendChild(wrap);
-        }
-      }
-    } else {
-      relasjonRow.style.display='none';
-      relasjonListe.innerHTML='';
+  // Vis alltid relasjonsfelt
+  if(relasjonRow&&relasjonListe){
+    relasjonRow.style.display='block';
+    relasjonListe.innerHTML='';
+    for(let i=1;i<=guests;i++){
+      const wrap=document.createElement('div');
+      wrap.style.cssText='display:flex;align-items:center;gap:.5rem';
+      wrap.innerHTML=`<span style="font-size:.82rem;color:#555;width:60px;flex-shrink:0">Gjest ${i}:</span>
+        <select id="relasjon-${i}" style="flex:1;padding:.5rem .7rem;border:1px solid #d8d4cf;border-radius:8px;font-size:.88rem">
+          <option value="bror">👨 Bø-bror</option>
+          <option value="mor">👵 Mor</option>
+          <option value="kone_kjaereste">💑 Kone/Kjæreste (Bø-bror)</option>
+          <option value="barn">👨‍👧 Barn</option>
+          <option value="barnebarn">👶 Barnebarn</option>
+          <option value="fosterbarn">🏠 Fosterbarn</option>
+          <option value="bonusbarn">👨‍👧 Bonusbarn</option>
+          <option value="bonusbarnebarn">👶 Bonusbarnebarn</option>
+          <option value="ektefelle_barn">💑 Ektefelle/Kjæreste (barn)</option>
+          <option value="venn">👫 Venn</option>
+          <option value="ekstern">🌍 Ekstern gjest</option>
+          <option value="annet">📍 Annet</option>
+        </select>`;
+      relasjonListe.appendChild(wrap);
     }
+  }
   }
 
   let total=calcKategoriPris(kat,nights,guests);
