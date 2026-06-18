@@ -140,9 +140,13 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:#1a6b8a;box-sh
       <p class="error-msg" id="pin-error"></p>
       <button style="background:none;border:none;color:#aaa;font-size:.8rem;cursor:pointer;margin-top:.5rem" onclick="resetLogin()">← Velg annen bruker</button>
     </div>
-    <p style="font-size:.72rem;color:#ccc;margin-top:2rem">Versjon 109 · Juni 2026</p>
+    <p style="font-size:.72rem;color:#ccc;margin-top:2rem">Versjon 110 · Juni 2026</p>
   </div>
 </div>
+
+<!-- EmailJS -->
+<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+<script>emailjs.init('eo1igNRUxY77Jk9bF');</script>
 
 <!-- LIGHTBOX -->
 <div class="lightbox" id="lightbox" onclick="closeLightbox()">
@@ -790,6 +794,24 @@ let selStart=null,selEnd=null,calYear=new Date().getFullYear(),calMonth=new Date
 const MONTHS=['Januar','Februar','Mars','April','Mai','Juni','Juli','August','September','Oktober','November','Desember'];
 const DAYS=['Ma','Ti','On','To','Fr','Lø','Sø'];
 
+// ─── EmailJS varsling ─────────────────────────────────────────────────────
+async function sendEmail(type, data){
+  try{
+    await emailjs.send('service_v9iwf59','template_jzkjrtk',{
+      type,
+      mottaker:'Svein',
+      melding: type==='🏠 Ny booking'
+        ? `Det er registrert en ny booking i Sol i Torremolinos.`
+        : `Det er meldt inn en ny skade i Sol i Torremolinos.`,
+      navn: data.navn||'',
+      fra: data.fra||'',
+      til: data.til||'',
+      ekstra: data.ekstra||'',
+    });
+    console.log('E-post sendt!');
+  }catch(e){console.warn('EmailJS feil:',e);}
+}
+
 // ─── Firebase listeners ───────────────────────────────────────────────────
 function startListening(){
   const q=query(collection(db,'bookings'),orderBy('from'));
@@ -1069,6 +1091,13 @@ window.submitBooking=async function(){
     document.getElementById('booking-form-section').style.display='none';
     ['f-renter','f-email','f-phone','f-msg'].forEach(id=>document.getElementById(id).value='');
     showToast('Bestilling lagret! ☁️');
+    // Send e-postvarsel
+    await sendEmail('🏠 Ny booking',{
+      navn: b.name,
+      fra: fmt(b.from),
+      til: fmt(b.to),
+      ekstra: `${b.nights} netter · ${b.guests} gjester · kr ${b.revenue.toLocaleString('no-NO')} · Registrert av: ${b.registeredBy}`
+    });
   }catch(e){showToast('Feil: '+e.message,'error');}
 };
 
@@ -1333,6 +1362,13 @@ window.saveSkade=async function(){
     document.getElementById('skade-bilde').value='';
     showToast('Skade innmeldt! ⚠️');
     renderSkader();
+    // Send e-postvarsel
+    await sendEmail('⚠️ Ny skade meldt inn',{
+      navn: skade.userName,
+      fra: new Date().toLocaleDateString('no-NO'),
+      til: skade.sted,
+      ekstra: skade.beskrivelse||'Ingen beskrivelse'
+    });
   }catch(e){showToast('Feil: '+e.message,'error');}
 };
 
