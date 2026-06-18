@@ -140,7 +140,7 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:#1a6b8a;box-sh
       <p class="error-msg" id="pin-error"></p>
       <button style="background:none;border:none;color:#aaa;font-size:.8rem;cursor:pointer;margin-top:.5rem" onclick="resetLogin()">← Velg annen bruker</button>
     </div>
-    <p style="font-size:.72rem;color:#ccc;margin-top:2rem">Versjon 118 · Juni 2026</p>
+    <p style="font-size:.72rem;color:#ccc;margin-top:2rem">Versjon 121 · Juni 2026</p>
   </div>
 </div>
 
@@ -241,7 +241,7 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:#1a6b8a;box-sh
     <div id="booking-form-section" class="card" style="display:none">
       <h2>Ny bestilling</h2>
       <div class="form-grid">
-        <div><label>Registreres av</label>
+        <div class="form-full"><label>Registreres av</label>
           <select id="f-who">
             <option value="SB">Svein Bø</option>
             <option value="LAB">Lars Arne Bø</option>
@@ -249,15 +249,35 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:#1a6b8a;box-sh
             <option value="SMB">Stig Martin Bø</option>
           </select>
         </div>
+        <div class="form-full"><label>Kategori</label>
+          <select id="f-kategori" onchange="updateKategori()">
+            <option value="1">🏠 Kategori 1 – Bø-familien (kr 0,-)</option>
+            <option value="2">👨‍👩‍👧 Kategori 2 – Barn/barnebarn uten oss (kr 100,- totalt)</option>
+            <option value="3">👥 Kategori 3 – Venner/bonusbarn (kr 200,- pr voksen pr døgn)</option>
+            <option value="4">🌍 Kategori 4 – Eksterne gjester (kr 1 400,- pr natt)</option>
+          </select>
+        </div>
         <div><label>Leietakers navn</label>
           <input type="text" id="f-renter" placeholder="F.eks. Sture Refnes Bø">
         </div>
         <div><label>Antall gjester</label>
-          <select id="f-guests"><option>1</option><option>2</option><option selected>3</option><option>4</option><option>5</option><option>6</option></select>
+          <select id="f-guests" onchange="updateKategori()">
+            <option>1</option><option>2</option><option selected>3</option><option>4</option>
+          </select>
+        </div>
+        <div class="form-full" id="gjest-relasjon-row" style="display:none">
+          <label>Hvem er gjestene? (spesifiser relasjon for hver gjest)</label>
+          <div id="gjest-relasjon-liste" style="display:flex;flex-direction:column;gap:.5rem;margin-top:.4rem"></div>
         </div>
         <div><label>Telefon</label><input type="tel" id="f-phone" placeholder="+47 900 00 000"></div>
-        <div class="form-full"><label>E-post</label><input type="email" id="f-email" placeholder="epost@example.com"></div>
-        <div class="form-full"><label>Melding / ønsker</label><textarea id="f-msg" rows="2" placeholder="Spesielle ønsker..."></textarea></div>
+        <div><label>E-post</label><input type="email" id="f-email" placeholder="epost@example.com"></div>
+        <div class="form-full" id="override-price-row" style="display:none">
+          <label>Avtalt totalpris (kr) – overstyrer standardpris</label>
+          <input type="number" id="f-override-price" placeholder="F.eks. 8500" min="0" step="100" onchange="updateKategori()">
+        </div>
+        <div class="form-full"><label>Melding / ønsker</label>
+          <textarea id="f-msg" rows="2" placeholder="Spesielle ønsker, ankomstinfo..."></textarea>
+        </div>
       </div>
       <div class="price-box" id="price-box"></div>
       <div style="display:flex;gap:.8rem;margin-top:.3rem">
@@ -1049,20 +1069,108 @@ function pickDate(ds,blocked){
 function priceForDate(d){const m=d.getMonth();if(m<=3||m>=10)return prices.low;if(m<=5||m===8)return prices.mid;return prices.high;}
 function calcStay(s,e){let total=0,nights=0,cur=new Date(s);const end=new Date(e);while(cur<end){total+=priceForDate(cur);nights++;cur.setDate(cur.getDate()+1);}return{total,nights};}
 
+function calcKategoriPris(kat,nights,guests){
+  switch(kat){
+    case '1': return 0;
+    case '2': return 100;
+    case '3': return 200*parseInt(guests)*nights;
+    case '4': return 1400*nights;
+    default:  return 0;
+  }
+}
+function kategoriNavn(kat){
+  switch(kat){
+    case '1': return 'Kategori 1 – Bø-familien';
+    case '2': return 'Kategori 2 – Barn/barnebarn';
+    case '3': return 'Kategori 3 – Venner/bonusbarn';
+    case '4': return 'Kategori 4 – Eksterne gjester';
+    default:  return 'Ukjent';
+  }
+}
+
+window.updateKategori=function(){
+  if(!selStart||!selEnd)return;
+  const kat=document.getElementById('f-kategori')?.value||'1';
+  const guests=parseInt(document.getElementById('f-guests')?.value||'1');
+  const{nights}=calcStay(selStart,selEnd);
+  const overrideRow=document.getElementById('override-price-row');
+  const overrideInput=document.getElementById('f-override-price');
+  const relasjonRow=document.getElementById('gjest-relasjon-row');
+  const relasjonListe=document.getElementById('gjest-relasjon-liste');
+
+  // Vis overstyringsfelt kun for kategori 4
+  if(overrideRow)overrideRow.style.display=kat==='4'?'block':'none';
+
+  // Vis relasjonsfelt kun for kategori 2
+  if(relasjonRow&&relasjonListe){
+    if(kat==='2'){
+      relasjonRow.style.display='block';
+      const existing=relasjonListe.querySelectorAll('select').length;
+      if(existing!==guests){
+        relasjonListe.innerHTML='';
+        for(let i=1;i<=guests;i++){
+          const wrap=document.createElement('div');
+          wrap.style.cssText='display:flex;align-items:center;gap:.5rem';
+          wrap.innerHTML=`<span style="font-size:.82rem;color:#555;width:60px;flex-shrink:0">Gjest ${i}:</span>
+            <select id="relasjon-${i}" style="flex:1;padding:.5rem .7rem;border:1px solid #d8d4cf;border-radius:8px;font-size:.88rem">
+              <option value="barn">👨‍👧 Barn</option>
+              <option value="barnebarn">👶 Barnebarn</option>
+              <option value="fosterbarn">🏠 Fosterbarn</option>
+              <option value="ektefelle">💑 Ektefelle/Kjæreste</option>
+            </select>`;
+          relasjonListe.appendChild(wrap);
+        }
+      }
+    } else if(kat==='3'){
+      relasjonRow.style.display='block';
+      const existing=relasjonListe.querySelectorAll('select').length;
+      if(existing!==guests){
+        relasjonListe.innerHTML='';
+        for(let i=1;i<=guests;i++){
+          const wrap=document.createElement('div');
+          wrap.style.cssText='display:flex;align-items:center;gap:.5rem';
+          wrap.innerHTML=`<span style="font-size:.82rem;color:#555;width:60px;flex-shrink:0">Gjest ${i}:</span>
+            <select id="relasjon-${i}" style="flex:1;padding:.5rem .7rem;border:1px solid #d8d4cf;border-radius:8px;font-size:.88rem">
+              <option value="venn">👫 Venn</option>
+              <option value="bonusbarn">👨‍👧 Bonusbarn</option>
+              <option value="bonusbarnebarn">👶 Bonusbarnebarn</option>
+              <option value="ektefelle">💑 Ektefelle/Kjæreste</option>
+              <option value="annet">📍 Annet</option>
+            </select>`;
+          relasjonListe.appendChild(wrap);
+        }
+      }
+    } else {
+      relasjonRow.style.display='none';
+      relasjonListe.innerHTML='';
+    }
+  }
+
+  let total=calcKategoriPris(kat,nights,guests);
+  if(kat==='4'&&overrideInput&&overrideInput.value)total=parseInt(overrideInput.value);
+  const pb=document.getElementById('price-box');if(!pb)return;
+  let priceInfo='';
+  if(kat==='1')priceInfo='Gratis for Bø-familien';
+  else if(kat==='2')priceInfo='Fast pris: kr 100,- totalt';
+  else if(kat==='3')priceInfo=`kr 200,- × ${guests} gjester × ${nights} netter = kr ${(200*guests*nights).toLocaleString('no-NO')},-`;
+  else if(kat==='4')priceInfo=overrideInput?.value?'Avtalt pris (overstyrt)':`kr 1 400,- × ${nights} netter`;
+  pb.innerHTML=`
+    <div class="price-row"><span>Kategori</span><span>${kategoriNavn(kat)}</span></div>
+    <div class="price-row"><span>Beregning</span><span>${priceInfo}</span></div>
+    <div class="price-row total"><span>Totalt</span><span>kr ${total.toLocaleString('no-NO')}</span></div>`;
+};
+
 function updateSummary(){
   const el=document.getElementById('date-summary');
   const fs=document.getElementById('booking-form-section');
   const isGuest=currentUser?.role==='guest';
   if(selStart&&selEnd){
-    const{total,nights}=calcStay(selStart,selEnd);
+    const{nights}=calcStay(selStart,selEnd);
     if(nights<prices.minNights){el.textContent=`Minimumsleie er ${prices.minNights} netter.`;el.style.color='#c0392b';fs.style.display='none';return;}
     el.style.color='#1a6b8a';
     el.textContent=`Innsjekk: ${fmt(selStart)}  →  Utsjekk: ${fmt(selEnd)}  (${nights} netter)`;
     fs.style.display=isGuest?'none':'block';
-    if(!isGuest) document.getElementById('price-box').innerHTML=`
-      <div class="price-row"><span>Leie (${nights} netter)</span><span>kr ${total.toLocaleString('no-NO')}</span></div>
-      <div class="price-row"><span>Rengjøring</span><span>kr ${prices.clean.toLocaleString('no-NO')}</span></div>
-      <div class="price-row total"><span>Totalt</span><span>kr ${(total+prices.clean).toLocaleString('no-NO')}</span></div>`;
+    if(!isGuest) updateKategori();
   } else if(selStart){
     el.style.color='#1a6b8a';el.textContent=`Innsjekk: ${fmt(selStart)}  —  Velg utsjekk-dato`;fs.style.display='none';
   } else {el.textContent='';fs.style.display='none';}
