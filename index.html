@@ -103,7 +103,6 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:#1a6b8a;box-sh
 .db-err{background:#f8d7da;color:#721c24}
 .modal-overlay{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.45);z-index:500;overflow-y:auto;padding:1rem}
 .modal-box{background:#fff;border-radius:16px;max-width:500px;margin:2rem auto;padding:1.5rem}
-/* Galleri */
 .img-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:.7rem;margin-top:.8rem}
 .img-thumb{position:relative;border-radius:10px;overflow:hidden;aspect-ratio:1;background:#f0ece8;cursor:pointer}
 .img-thumb img{width:100%;height:100%;object-fit:cover;transition:.2s}
@@ -112,37 +111,17 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:#1a6b8a;box-sh
 .img-thumb .img-caption{position:absolute;bottom:0;left:0;right:0;background:rgba(0,0,0,.5);color:#fff;font-size:.7rem;padding:.2rem .4rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .upload-box{border:2px dashed #c8e4ef;border-radius:12px;padding:1.5rem;text-align:center;cursor:pointer;transition:.2s;background:#f8fbfd}
 .upload-box:hover{border-color:#1a6b8a;background:#e8f4f8}
-.upload-box input{display:none}
 .progress-bar{height:6px;background:#e0ddd8;border-radius:3px;margin-top:.5rem;overflow:hidden}
 .progress-fill{height:100%;background:#1a6b8a;border-radius:3px;transition:.3s;width:0}
-/* Lightbox */
 .lightbox{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.9);z-index:600;align-items:center;justify-content:center}
 .lightbox.open{display:flex}
 .lightbox img{max-width:90vw;max-height:85vh;border-radius:8px;object-fit:contain}
 .lightbox-close{position:absolute;top:1rem;right:1.5rem;color:#fff;font-size:2rem;cursor:pointer;background:none;border:none}
-/* Sjekkliste */
 .check-row{display:flex;align-items:center;gap:.7rem;padding:.55rem 0;border-bottom:1px solid #f0ece8}
+.gjest-box{background:#f8f6f2;border-radius:10px;padding:.8rem;border:1px solid #e8e4df;margin-bottom:.5rem}
 </style>
 </head>
 <body>
-
-<!-- LOGIN -->
-<div id="login-screen" class="login-wrap">
-  <div class="login-card">
-    <div style="font-size:2.2rem;margin-bottom:.5rem">☀️</div>
-    <h1>Sol i Torremolinos</h1>
-    <p>Logg inn for å se bookinger</p>
-    <div class="user-btns" id="user-btns"></div>
-    <div id="pin-section" style="display:none">
-      <p style="font-size:.82rem;color:#888;margin-bottom:.8rem" id="pin-label">Skriv inn PIN</p>
-      <div class="pin-row" id="pin-dots"></div>
-      <div class="numpad" id="numpad"></div>
-      <p class="error-msg" id="pin-error"></p>
-      <button style="background:none;border:none;color:#aaa;font-size:.8rem;cursor:pointer;margin-top:.5rem" onclick="resetLogin()">← Velg annen bruker</button>
-    </div>
-    <p style="font-size:.72rem;color:#ccc;margin-top:2rem">Versjon 121 · Juni 2026</p>
-  </div>
-</div>
 
 <!-- EmailJS -->
 <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
@@ -171,12 +150,12 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:#1a6b8a;box-sh
       <div><label>Innsjekk</label><input type="date" id="e-from"></div>
       <div><label>Utsjekk</label><input type="date" id="e-to"></div>
       <div><label>Antall gjester</label>
-        <select id="e-guests"><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option><option>6</option></select>
+        <select id="e-guests"><option>1</option><option>2</option><option>3</option><option>4</option></select>
       </div>
       <div><label>Telefon</label><input type="tel" id="e-phone"></div>
       <div class="form-full"><label>E-post</label><input type="email" id="e-email"></div>
       <div class="form-full"><label>Total pris (kr)</label><input type="number" id="e-revenue" step="50"></div>
-      <div class="form-full"><label>Melding / ønsker</label><textarea id="e-msg" rows="2"></textarea></div>
+      <div class="form-full"><label>Melding</label><textarea id="e-msg" rows="2"></textarea></div>
       <div class="form-full"><label>Status</label>
         <select id="e-status">
           <option value="confirmed">Bekreftet</option>
@@ -188,6 +167,87 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:#1a6b8a;box-sh
       <button class="btn" onclick="saveEdit()">Lagre endringer</button>
       <button class="btn btn-outline" onclick="closeEdit()">Avbryt</button>
     </div>
+  </div>
+</div>
+
+<!-- SKADE MODAL -->
+<div id="skade-modal" class="modal-overlay">
+  <div class="modal-box">
+    <h2 style="margin-bottom:1rem">⚠️ Meld inn skade</h2>
+    <div class="form-grid">
+      <div class="form-full"><label>Hva er skadet?</label><input type="text" id="skade-tittel" placeholder="F.eks. Knust tallerken..."></div>
+      <div class="form-full"><label>Hvor i leiligheten?</label>
+        <select id="skade-sted">
+          <option value="Kjøkken">🍳 Kjøkken</option>
+          <option value="Stue">📺 Stue</option>
+          <option value="Soverom 1">🛏️ Soverom 1</option>
+          <option value="Soverom 2">🛏️ Soverom 2</option>
+          <option value="Bad">🚿 Bad</option>
+          <option value="Balkong">🌅 Balkong</option>
+          <option value="Gang/Inngang">🚪 Gang/Inngang</option>
+          <option value="Annet">📍 Annet</option>
+        </select>
+      </div>
+      <div class="form-full"><label>Beskrivelse</label><textarea id="skade-beskrivelse" rows="3" placeholder="Beskriv skaden..."></textarea></div>
+      <div class="form-full"><label>Bilde (anbefalt)</label><input type="file" id="skade-bilde" accept="image/*" style="padding:.4rem"></div>
+    </div>
+    <div style="display:flex;gap:.8rem;margin-top:1rem">
+      <button class="btn" style="background:#c0392b" onclick="saveSkade()">⚠️ Send inn skade</button>
+      <button class="btn btn-outline" onclick="closeSkadeModal()">Avbryt</button>
+    </div>
+  </div>
+</div>
+
+<!-- TIPS MODAL -->
+<div id="tips-modal" class="modal-overlay">
+  <div class="modal-box">
+    <h2 style="margin-bottom:1rem">Legg til anbefaling</h2>
+    <div class="form-grid">
+      <div><label>Kategori</label>
+        <select id="tip-kategori">
+          <option value="restauranter">🍽️ Restaurant</option>
+          <option value="barer">🍺 Bar/Pub</option>
+          <option value="strender">🏖️ Strand</option>
+          <option value="aktiviteter">🎭 Aktivitet</option>
+          <option value="shopping">🛍️ Shopping</option>
+        </select>
+      </div>
+      <div><label>Navn på sted</label><input type="text" id="tip-navn" placeholder="F.eks. La Bodega"></div>
+      <div class="form-full"><label>Adresse</label><input type="text" id="tip-adresse" placeholder="F.eks. Calle San Miguel 12"></div>
+      <div class="form-full"><label>Beskrivelse</label><textarea id="tip-beskrivelse" rows="3" placeholder="Fantastisk seafood..."></textarea></div>
+      <div><label>Vurdering</label>
+        <select id="tip-rating">
+          <option value="5">⭐⭐⭐⭐⭐ Fantastisk</option>
+          <option value="4">⭐⭐⭐⭐ Veldig bra</option>
+          <option value="3">⭐⭐⭐ Bra</option>
+          <option value="2">⭐⭐ Greit</option>
+          <option value="1">⭐ Skuffende</option>
+        </select>
+      </div>
+      <div><label>Bilde (valgfritt)</label><input type="file" id="tip-bilde" accept="image/*" style="padding:.4rem"></div>
+    </div>
+    <div style="display:flex;gap:.8rem;margin-top:1rem">
+      <button class="btn" onclick="saveTip()">Lagre anbefaling</button>
+      <button class="btn btn-outline" onclick="closeTips()">Avbryt</button>
+    </div>
+  </div>
+</div>
+
+<!-- LOGIN -->
+<div id="login-screen" class="login-wrap">
+  <div class="login-card">
+    <div style="font-size:2.2rem;margin-bottom:.5rem">☀️</div>
+    <h1>Sol i Torremolinos</h1>
+    <p>Logg inn for å se bookinger</p>
+    <div class="user-btns" id="user-btns"></div>
+    <div id="pin-section" style="display:none">
+      <p style="font-size:.82rem;color:#888;margin-bottom:.8rem" id="pin-label">Skriv inn PIN</p>
+      <div class="pin-row" id="pin-dots"></div>
+      <div class="numpad" id="numpad"></div>
+      <p class="error-msg" id="pin-error"></p>
+      <button style="background:none;border:none;color:#aaa;font-size:.8rem;cursor:pointer;margin-top:.5rem" onclick="resetLogin()">← Velg annen bruker</button>
+    </div>
+    <p style="font-size:.72rem;color:#ccc;margin-top:2rem">Versjon 126 · Juni 2026</p>
   </div>
 </div>
 
@@ -241,7 +301,7 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:#1a6b8a;box-sh
     <div id="booking-form-section" class="card" style="display:none">
       <h2>Ny bestilling</h2>
       <div class="form-grid">
-        <div class="form-full"><label>Registreres av</label>
+        <div><label>Registreres av</label>
           <select id="f-who">
             <option value="SB">Svein Bø</option>
             <option value="LAB">Lars Arne Bø</option>
@@ -249,35 +309,23 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:#1a6b8a;box-sh
             <option value="SMB">Stig Martin Bø</option>
           </select>
         </div>
-        <div class="form-full"><label>Kategori</label>
-          <select id="f-kategori" onchange="updateKategori()">
-            <option value="1">🏠 Kategori 1 – Bø-familien (kr 0,-)</option>
-            <option value="2">👨‍👩‍👧 Kategori 2 – Barn/barnebarn uten oss (kr 100,- totalt)</option>
-            <option value="3">👥 Kategori 3 – Venner/bonusbarn (kr 200,- pr voksen pr døgn)</option>
-            <option value="4">🌍 Kategori 4 – Eksterne gjester (kr 1 400,- pr natt)</option>
-          </select>
-        </div>
-        <div><label>Leietakers navn</label>
-          <input type="text" id="f-renter" placeholder="F.eks. Sture Refnes Bø">
-        </div>
+        <div><label>Leietakers navn</label><input type="text" id="f-renter" placeholder="F.eks. Sture Refnes Bø"></div>
         <div><label>Antall gjester</label>
-          <select id="f-guests" onchange="updateKategori()">
+          <select id="f-guests" onchange="updateGjestListe()">
             <option>1</option><option>2</option><option selected>3</option><option>4</option>
           </select>
         </div>
-        <div class="form-full" id="gjest-relasjon-row" style="display:none">
-          <label>Spesifiser hver gjest</label>
-          <div id="gjest-relasjon-liste" style="display:flex;flex-direction:column;gap:.5rem;margin-top:.4rem"></div>
-        </div>
         <div><label>Telefon</label><input type="tel" id="f-phone" placeholder="+47 900 00 000"></div>
-        <div><label>E-post</label><input type="email" id="f-email" placeholder="epost@example.com"></div>
+        <div class="form-full"><label>E-post</label><input type="email" id="f-email" placeholder="epost@example.com"></div>
+        <div class="form-full">
+          <label>Gjester – velg kategori og relasjon for hver</label>
+          <div id="gjest-liste" style="margin-top:.5rem"></div>
+        </div>
         <div class="form-full" id="override-price-row" style="display:none">
-          <label>Avtalt totalpris (kr) – overstyrer standardpris</label>
-          <input type="number" id="f-override-price" placeholder="F.eks. 8500" min="0" step="100" onchange="updateKategori()">
+          <label>Avtalt totalpris for kategori 4 (kr) – overstyrer standardpris</label>
+          <input type="number" id="f-override-price" placeholder="F.eks. 8500" min="0" step="100" onchange="beregnPris()">
         </div>
-        <div class="form-full"><label>Melding / ønsker</label>
-          <textarea id="f-msg" rows="2" placeholder="Spesielle ønsker, ankomstinfo..."></textarea>
-        </div>
+        <div class="form-full"><label>Melding / ønsker</label><textarea id="f-msg" rows="2" placeholder="Spesielle ønsker..."></textarea></div>
       </div>
       <div class="price-box" id="price-box"></div>
       <div style="display:flex;gap:.8rem;margin-top:.3rem">
@@ -295,40 +343,6 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:#1a6b8a;box-sh
     </div>
   </div>
 
-  <!-- SKADE MODAL -->
-  <div id="skade-modal" class="modal-overlay">
-    <div class="modal-box">
-      <h2 style="margin-bottom:1rem">⚠️ Meld inn skade</h2>
-      <div class="form-grid">
-        <div class="form-full"><label>Hva er skadet?</label>
-          <input type="text" id="skade-tittel" placeholder="F.eks. Knust tallerken, ødelagt stol...">
-        </div>
-        <div class="form-full"><label>Hvor i leiligheten?</label>
-          <select id="skade-sted">
-            <option value="Kjøkken">🍳 Kjøkken</option>
-            <option value="Stue">📺 Stue</option>
-            <option value="Soverom 1">🛏️ Soverom 1</option>
-            <option value="Soverom 2">🛏️ Soverom 2</option>
-            <option value="Bad">🚿 Bad</option>
-            <option value="Balkong">🌅 Balkong</option>
-            <option value="Gang/Inngang">🚪 Gang/Inngang</option>
-            <option value="Annet">📍 Annet</option>
-          </select>
-        </div>
-        <div class="form-full"><label>Beskrivelse</label>
-          <textarea id="skade-beskrivelse" rows="3" placeholder="Beskriv skaden så godt som mulig..."></textarea>
-        </div>
-        <div class="form-full"><label>Bilde av skaden (anbefalt)</label>
-          <input type="file" id="skade-bilde" accept="image/*" style="padding:.4rem">
-        </div>
-      </div>
-      <div style="display:flex;gap:.8rem;margin-top:1rem">
-        <button class="btn" style="background:#c0392b" onclick="saveSkade()">⚠️ Send inn skade</button>
-        <button class="btn btn-outline" onclick="closeSkadeModal()">Avbryt</button>
-      </div>
-    </div>
-  </div>
-
   <!-- BILDER -->
   <div id="page-bilder" class="page">
     <div class="card">
@@ -337,16 +351,14 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:#1a6b8a;box-sh
         <button class="tab" onclick="switchTab('innsjekk-bilder',this)">✅ Innsjekk</button>
         <button class="tab" onclick="switchTab('utsjekk-bilder',this)">🧹 Utsjekk</button>
       </div>
-
-      <!-- GALLERI -->
       <div id="tab-galleri" class="section active">
-        <p style="font-size:.85rem;color:#666;margin-bottom:1rem">Bilder av leiligheten. Last opp fra mobil eller PC.</p>
+        <p style="font-size:.85rem;color:#666;margin-bottom:1rem">Bilder av leiligheten.</p>
         <div class="upload-box" onclick="document.getElementById('upload-galleri').click()">
           <div style="font-size:2rem">📸</div>
           <div style="font-weight:500;margin:.3rem 0">Trykk for å laste opp bilder</div>
           <div style="font-size:.8rem;color:#aaa">JPG, PNG – fra kamera eller bildebibliotek</div>
         </div>
-        <input type="file" id="upload-galleri" accept="image/*" multiple capture="environment" style="display:none" onchange="uploadImages(this.files,'galleri')">
+        <input type="file" id="upload-galleri" accept="image/*" multiple style="display:none" onchange="uploadImages(this.files,'galleri')">
         <div class="progress-bar" id="prog-galleri" style="display:none"><div class="progress-fill" id="prog-fill-galleri"></div></div>
         <div style="display:flex;gap:.5rem;margin-top:.8rem;flex-wrap:wrap">
           <button class="btn btn-sm btn-outline" onclick="document.getElementById('upload-galleri').removeAttribute('capture');document.getElementById('upload-galleri').click()">🖼️ Velg fra bibliotek</button>
@@ -354,14 +366,11 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:#1a6b8a;box-sh
         </div>
         <div class="img-grid" id="grid-galleri"><div class="loading">Laster bilder...</div></div>
       </div>
-
-      <!-- INNSJEKK BILDER -->
       <div id="tab-innsjekk-bilder" class="section">
-        <p style="font-size:.85rem;color:#666;margin-bottom:1rem">Dokumentasjon ved ankomst. Last opp bilder som viser leilighetens tilstand.</p>
+        <p style="font-size:.85rem;color:#666;margin-bottom:1rem">Dokumentasjon ved ankomst.</p>
         <div class="upload-box" onclick="document.getElementById('upload-innsjekk').click()">
           <div style="font-size:2rem">📷</div>
           <div style="font-weight:500;margin:.3rem 0">Last opp innsjekk-bilder</div>
-          <div style="font-size:.8rem;color:#aaa">Dato og ditt navn lagres automatisk</div>
         </div>
         <input type="file" id="upload-innsjekk" accept="image/*" multiple style="display:none" onchange="uploadImages(this.files,'innsjekk')">
         <div class="progress-bar" id="prog-innsjekk" style="display:none"><div class="progress-fill" id="prog-fill-innsjekk"></div></div>
@@ -371,14 +380,11 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:#1a6b8a;box-sh
         </div>
         <div class="img-grid" id="grid-innsjekk"><div class="loading">Laster bilder...</div></div>
       </div>
-
-      <!-- UTSJEKK BILDER -->
       <div id="tab-utsjekk-bilder" class="section">
-        <p style="font-size:.85rem;color:#666;margin-bottom:1rem">Dokumentasjon ved avreise. Last opp bilder som viser leilighetens tilstand.</p>
+        <p style="font-size:.85rem;color:#666;margin-bottom:1rem">Dokumentasjon ved avreise.</p>
         <div class="upload-box" onclick="document.getElementById('upload-utsjekk').click()">
           <div style="font-size:2rem">📷</div>
           <div style="font-weight:500;margin:.3rem 0">Last opp utsjekk-bilder</div>
-          <div style="font-size:.8rem;color:#aaa">Dato og ditt navn lagres automatisk</div>
         </div>
         <input type="file" id="upload-utsjekk" accept="image/*" multiple style="display:none" onchange="uploadImages(this.files,'utsjekk')">
         <div class="progress-bar" id="prog-utsjekk" style="display:none"><div class="progress-fill" id="prog-fill-utsjekk"></div></div>
@@ -396,7 +402,7 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:#1a6b8a;box-sh
     <div class="card">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;flex-wrap:wrap;gap:.5rem">
         <h2 style="margin:0">⭐ Våre anbefalinger</h2>
-        <button class="btn btn-sm" onclick="openTips()">+ Legg til anbefaling</button>
+        <button class="btn btn-sm" onclick="openTips()">+ Legg til</button>
       </div>
       <div class="tabs">
         <button class="tab active" onclick="switchTab('tip-restauranter',this);renderTips('restauranter')">🍽️ Mat</button>
@@ -406,47 +412,10 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:#1a6b8a;box-sh
         <button class="tab" onclick="switchTab('tip-shopping',this);renderTips('shopping')">🛍️ Shopping</button>
       </div>
       <div id="tab-tip-restauranter" class="section active"><div id="tips-restauranter"><div class="loading">Laster...</div></div></div>
-      <div id="tab-tip-barer" class="section"><div id="tips-barer"><div class="loading">Laster...</div></div></div>
-      <div id="tab-tip-strender" class="section"><div id="tips-strender"><div class="loading">Laster...</div></div></div>
-      <div id="tab-tip-aktiviteter" class="section"><div id="tips-aktiviteter"><div class="loading">Laster...</div></div></div>
-      <div id="tab-tip-shopping" class="section"><div id="tips-shopping"><div class="loading">Laster...</div></div></div>
-    </div>
-  </div>
-
-  <!-- TIPS MODAL -->
-  <div id="tips-modal" class="modal-overlay">
-    <div class="modal-box">
-      <h2 style="margin-bottom:1rem">Legg til anbefaling</h2>
-      <div class="form-grid">
-        <div><label>Kategori</label>
-          <select id="tip-kategori">
-            <option value="restauranter">🍽️ Restaurant</option>
-            <option value="barer">🍺 Bar/Pub</option>
-            <option value="strender">🏖️ Strand</option>
-            <option value="aktiviteter">🎭 Aktivitet</option>
-            <option value="shopping">🛍️ Shopping</option>
-          </select>
-        </div>
-        <div><label>Navn på sted</label><input type="text" id="tip-navn" placeholder="F.eks. La Bodega"></div>
-        <div class="form-full"><label>Adresse</label><input type="text" id="tip-adresse" placeholder="F.eks. Calle San Miguel 12"></div>
-        <div class="form-full"><label>Beskrivelse / hvorfor anbefaler du det?</label><textarea id="tip-beskrivelse" rows="3" placeholder="Fantastisk seafood, god stemning, rimelige priser..."></textarea></div>
-        <div><label>Vurdering</label>
-          <select id="tip-rating">
-            <option value="5">⭐⭐⭐⭐⭐ Fantastisk</option>
-            <option value="4">⭐⭐⭐⭐ Veldig bra</option>
-            <option value="3">⭐⭐⭐ Bra</option>
-            <option value="2">⭐⭐ Greit</option>
-            <option value="1">⭐ Skuffende</option>
-          </select>
-        </div>
-        <div><label>Bilde (valgfritt)</label>
-          <input type="file" id="tip-bilde" accept="image/*" style="padding:.4rem">
-        </div>
-      </div>
-      <div style="display:flex;gap:.8rem;margin-top:1rem">
-        <button class="btn" onclick="saveTip()">Lagre anbefaling</button>
-        <button class="btn btn-outline" onclick="closeTips()">Avbryt</button>
-      </div>
+      <div id="tab-tip-barer" class="section"><div id="tips-barer"></div></div>
+      <div id="tab-tip-strender" class="section"><div id="tips-strender"></div></div>
+      <div id="tab-tip-aktiviteter" class="section"><div id="tips-aktiviteter"></div></div>
+      <div id="tab-tip-shopping" class="section"><div id="tips-shopping"></div></div>
     </div>
   </div>
 
@@ -454,7 +423,7 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:#1a6b8a;box-sh
   <div id="page-oversikt" class="page">
     <div class="card">
       <h2>Kalenderoversikt 2026–2033</h2>
-      <p style="font-size:.85rem;color:#666;margin-bottom:1rem">Bytte skjer alltid på lørdag. Ny periode starter lørdag, forrige slutter fredag.</p>
+      <p style="font-size:.85rem;color:#666;margin-bottom:1rem">Bytte skjer alltid på lørdag.</p>
       <div style="display:flex;gap:1rem;flex-wrap:wrap;margin-bottom:1.5rem">
         <span style="display:flex;align-items:center;gap:.5rem;font-size:.85rem"><span style="width:16px;height:16px;border-radius:4px;background:#d8f3dc;border:1px solid #74c69d;display:inline-block"></span> Lars Arne Bø (LAB)</span>
         <span style="display:flex;align-items:center;gap:.5rem;font-size:.85rem"><span style="width:16px;height:16px;border-radius:4px;background:#ede7f6;border:1px solid #9c7fd4;display:inline-block"></span> Stig Martin Bø (SMB)</span>
@@ -475,7 +444,7 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:#1a6b8a;box-sh
         <button class="tab" onclick="switchTab('skade-liste',this)">⚠️ Skade</button>
       </div>
       <div id="tab-innsjekk-liste" class="section active">
-        <p style="font-size:.85rem;color:#666;margin-bottom:1rem">Huk av ved ankomst. Nullstilles når du lukker siden.</p>
+        <p style="font-size:.85rem;color:#666;margin-bottom:1rem">Huk av ved ankomst.</p>
         <div id="list-innsjekk"></div>
         <div style="display:flex;gap:.6rem;margin-top:1rem">
           <input type="text" id="new-innsjekk" placeholder="Legg til punkt..." style="flex:1" onkeydown="if(event.key==='Enter')addItem('innsjekk')">
@@ -484,18 +453,13 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:#1a6b8a;box-sh
         <button class="btn btn-outline btn-sm" style="margin-top:.8rem" onclick="resetChecks('innsjekk')">Nullstill avhukinger</button>
       </div>
       <div id="tab-utsjekk-liste" class="section">
-        <p style="font-size:.85rem;color:#666;margin-bottom:1rem">Huk av før avreise. Nullstilles når du lukker siden.</p>
+        <p style="font-size:.85rem;color:#666;margin-bottom:1rem">Huk av før avreise.</p>
         <div id="list-utsjekk"></div>
         <div style="display:flex;gap:.6rem;margin-top:1rem">
           <input type="text" id="new-utsjekk" placeholder="Legg til punkt..." style="flex:1" onkeydown="if(event.key==='Enter')addItem('utsjekk')">
           <button class="btn btn-sm" onclick="addItem('utsjekk')" style="margin-top:0">+ Legg til</button>
         </div>
         <button class="btn btn-outline btn-sm" style="margin-top:.8rem" onclick="resetChecks('utsjekk')">Nullstill avhukinger</button>
-      </div>
-      <div id="tab-skade-liste" class="section">
-        <p style="font-size:.85rem;color:#666;margin-bottom:1rem">Meld inn skader eller feil i leiligheten. Alle kan melde inn, admin håndterer oppfølging.</p>
-        <button class="btn btn-sm" style="margin-bottom:1rem" onclick="openSkadeModal()">⚠️ Meld inn ny skade</button>
-        <div id="skade-liste"><div class="loading">Laster...</div></div>
       </div>
       <div id="tab-vedlikehold-liste" class="section">
         <p style="font-size:.85rem;color:#666;margin-bottom:1rem">Ting som bør sjekkes eller fikses.</p>
@@ -506,6 +470,11 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:#1a6b8a;box-sh
         </div>
         <button class="btn btn-outline btn-sm" style="margin-top:.8rem" onclick="resetChecks('vedlikehold')">Nullstill avhukinger</button>
       </div>
+      <div id="tab-skade-liste" class="section">
+        <p style="font-size:.85rem;color:#666;margin-bottom:1rem">Meld inn skader. Alle kan melde inn.</p>
+        <button class="btn btn-sm" style="margin-bottom:1rem" onclick="openSkadeModal()">⚠️ Meld inn ny skade</button>
+        <div id="skade-liste"><div class="loading">Laster...</div></div>
+      </div>
     </div>
   </div>
 
@@ -515,10 +484,7 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:#1a6b8a;box-sh
       <h2>📍 Adresse</h2>
       <p style="font-size:1rem;font-weight:500;margin-bottom:.3rem">Calle Conde de Mieres, 21 – Leilighet nr. 9</p>
       <p style="color:#555;margin-bottom:1rem">29620 Torremolinos, Málaga, Spania</p>
-      <a href="https://maps.google.com/?q=Calle+Conde+de+Mieres+21+Torremolinos" target="_blank"
-        style="display:inline-flex;align-items:center;gap:.4rem;background:#e8f4f8;color:#1a6b8a;border-radius:8px;padding:.5rem 1rem;font-size:.88rem;text-decoration:none;font-weight:500">
-        🗺️ Åpne i Google Maps
-      </a>
+      <a href="https://maps.google.com/?q=Calle+Conde+de+Mieres+21+Torremolinos" target="_blank" style="display:inline-flex;align-items:center;gap:.4rem;background:#e8f4f8;color:#1a6b8a;border-radius:8px;padding:.5rem 1rem;font-size:.88rem;text-decoration:none;font-weight:500">🗺️ Åpne i Google Maps</a>
     </div>
     <div class="card">
       <h2>🔑 Nøkkel og tilgang</h2>
@@ -527,23 +493,19 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:#1a6b8a;box-sh
       <div style="background:#fff8e8;border:1px solid #f5d78e;border-radius:10px;padding:1rem;margin-top:.8rem">
         <p style="font-size:.9rem;line-height:1.8;color:#555">
           🗝️ Dere mottar nøkkel av utleier ved ankomst. Det er også en reservenøkkel som henger ved inngangen.<br><br>
-          ⚠️ <b>Viktig:</b> Den eneste måten å komme inn i hovedporten, første etasje og leiligheten er gjennom nøkler. Det er ikke mulig å komme inn på noen annen måte.<br><br>
+          ⚠️ <b>Viktig:</b> Den eneste måten å komme inn i hovedporten, første etasje og leiligheten er gjennom nøkler.<br><br>
           Dere har to nøkler – <b>pass godt på begge!</b> Mister dere dem, kommer dere ikke inn.
         </p>
       </div>
     </div>
     <div class="card">
       <h2>📶 Internett</h2>
-      <div style="background:#fde8e8;border:1px solid #f5c6cb;border-radius:10px;padding:1rem;margin-top:.2rem">
-        <p style="font-size:.9rem;line-height:1.8;color:#555">
-          ❌ Det er <b>ikke</b> trådløst nettverk (WiFi) i leiligheten.<br><br>
-          📱 Dere må bruke <b>eget mobilt nettverk (5G/4G)</b> for internettilgang.
-        </p>
+      <div style="background:#fde8e8;border:1px solid #f5c6cb;border-radius:10px;padding:1rem">
+        <p style="font-size:.9rem;line-height:1.8;color:#555">❌ Det er <b>ikke</b> trådløst nettverk (WiFi) i leiligheten.<br>📱 Dere må bruke <b>eget mobilt nettverk (5G/4G)</b>.</p>
       </div>
     </div>
     <div class="card">
       <h2>🏠 Om leiligheten</h2>
-      <p style="color:#555;line-height:1.7;margin-bottom:1rem">Romslig og lys leilighet i Torremolinos, kun 350 meter fra stranden og 150 meter fra den livlige hovedgaten på Costa del Sol.</p>
       <div class="info-grid">
         <div>
           <h3>Fasiliteter</h3>
@@ -561,7 +523,7 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:#1a6b8a;box-sh
           <div class="feature"><span class="icon">🛍️</span><div>150 m til hovedgaten</div></div>
           <div class="feature"><span class="icon">✈️</span><div>20 min fra Málaga lufthavn</div></div>
           <div class="feature"><span class="icon">🏊</span><div>Felles basseng</div></div>
-          <div class="feature"><span class="icon">🚗</span><div>Parkering tilgjengelig – plass nr. 7</div></div>
+          <div class="feature"><span class="icon">🚗</span><div>Parkering – plass nr. 7</div></div>
           <div class="feature"><span class="icon">🐾</span><div>Ikke tillatt med kjæledyr</div></div>
           <div class="feature"><span class="icon">🚭</span><div>Røykfritt innendørs</div></div>
         </div>
@@ -569,48 +531,12 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:#1a6b8a;box-sh
     </div>
     <div class="card">
       <h2>📞 Kontaktpersoner</h2>
-      <p style="font-size:.88rem;color:#555;margin-bottom:1rem;line-height:1.7">Kontakt alltid den du har fått booket oppholdet hos i første omgang. Ellers kan følgende personer kontaktes:</p>
+      <p style="font-size:.88rem;color:#555;margin-bottom:1rem;line-height:1.7">Kontakt alltid den du har booket oppholdet hos. Ellers:</p>
       <div style="display:flex;flex-direction:column;gap:.6rem">
-        <a href="tel:+4791384974" style="text-decoration:none">
-          <div style="background:#e8f4f8;border:1px solid #b0d4e8;border-radius:12px;padding:.9rem 1rem;display:flex;align-items:center;gap:.8rem">
-            <div style="width:40px;height:40px;border-radius:50%;background:#1a6b8a;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:600;font-size:.8rem;flex-shrink:0">LAB</div>
-            <div style="flex:1">
-              <div style="font-weight:600;color:#1a6b8a">Lars Arne Bø</div>
-              <div style="font-size:.8rem;color:#555">Hovedkontakt · +47 913 84 974</div>
-            </div>
-            <span style="font-size:1.3rem">📱</span>
-          </div>
-        </a>
-        <a href="tel:+4797152733" style="text-decoration:none">
-          <div style="background:#f8f6f2;border:1px solid #e8e4df;border-radius:12px;padding:.9rem 1rem;display:flex;align-items:center;gap:.8rem">
-            <div style="width:40px;height:40px;border-radius:50%;background:#e8f4f8;color:#1a6b8a;display:flex;align-items:center;justify-content:center;font-weight:600;font-size:.8rem;flex-shrink:0">SB</div>
-            <div style="flex:1">
-              <div style="font-weight:500;color:#222">Svein Bø</div>
-              <div style="font-size:.8rem;color:#666">+47 971 52 733</div>
-            </div>
-            <span style="font-size:1.3rem">📱</span>
-          </div>
-        </a>
-        <a href="tel:+4790760614" style="text-decoration:none">
-          <div style="background:#f8f6f2;border:1px solid #e8e4df;border-radius:12px;padding:.9rem 1rem;display:flex;align-items:center;gap:.8rem">
-            <div style="width:40px;height:40px;border-radius:50%;background:#ede7f6;color:#5e35b1;display:flex;align-items:center;justify-content:center;font-weight:600;font-size:.8rem;flex-shrink:0">SMB</div>
-            <div style="flex:1">
-              <div style="font-weight:500;color:#222">Stig Martin Bø</div>
-              <div style="font-size:.8rem;color:#666">+47 907 60 614</div>
-            </div>
-            <span style="font-size:1.3rem">📱</span>
-          </div>
-        </a>
-        <a href="tel:+4798217529" style="text-decoration:none">
-          <div style="background:#f8f6f2;border:1px solid #e8e4df;border-radius:12px;padding:.9rem 1rem;display:flex;align-items:center;gap:.8rem">
-            <div style="width:40px;height:40px;border-radius:50%;background:#f3e5d8;color:#6d4c41;display:flex;align-items:center;justify-content:center;font-weight:600;font-size:.8rem;flex-shrink:0">AMB</div>
-            <div style="flex:1">
-              <div style="font-weight:500;color:#222">Alf Marlon Bø</div>
-              <div style="font-size:.8rem;color:#666">+47 982 17 529</div>
-            </div>
-            <span style="font-size:1.3rem">📱</span>
-          </div>
-        </a>
+        <a href="tel:+4791384974" style="text-decoration:none"><div style="background:#e8f4f8;border:1px solid #b0d4e8;border-radius:12px;padding:.9rem 1rem;display:flex;align-items:center;gap:.8rem"><div style="width:40px;height:40px;border-radius:50%;background:#1a6b8a;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:600;font-size:.8rem;flex-shrink:0">LAB</div><div style="flex:1"><div style="font-weight:600;color:#1a6b8a">Lars Arne Bø</div><div style="font-size:.8rem;color:#555">Hovedkontakt · +47 913 84 974</div></div><span style="font-size:1.3rem">📱</span></div></a>
+        <a href="tel:+4797152733" style="text-decoration:none"><div style="background:#f8f6f2;border:1px solid #e8e4df;border-radius:12px;padding:.9rem 1rem;display:flex;align-items:center;gap:.8rem"><div style="width:40px;height:40px;border-radius:50%;background:#e8f4f8;color:#1a6b8a;display:flex;align-items:center;justify-content:center;font-weight:600;font-size:.8rem;flex-shrink:0">SB</div><div style="flex:1"><div style="font-weight:500;color:#222">Svein Bø</div><div style="font-size:.8rem;color:#666">+47 971 52 733</div></div><span style="font-size:1.3rem">📱</span></div></a>
+        <a href="tel:+4790760614" style="text-decoration:none"><div style="background:#f8f6f2;border:1px solid #e8e4df;border-radius:12px;padding:.9rem 1rem;display:flex;align-items:center;gap:.8rem"><div style="width:40px;height:40px;border-radius:50%;background:#ede7f6;color:#5e35b1;display:flex;align-items:center;justify-content:center;font-weight:600;font-size:.8rem;flex-shrink:0">SMB</div><div style="flex:1"><div style="font-weight:500;color:#222">Stig Martin Bø</div><div style="font-size:.8rem;color:#666">+47 907 60 614</div></div><span style="font-size:1.3rem">📱</span></div></a>
+        <a href="tel:+4798217529" style="text-decoration:none"><div style="background:#f8f6f2;border:1px solid #e8e4df;border-radius:12px;padding:.9rem 1rem;display:flex;align-items:center;gap:.8rem"><div style="width:40px;height:40px;border-radius:50%;background:#f3e5d8;color:#6d4c41;display:flex;align-items:center;justify-content:center;font-weight:600;font-size:.8rem;flex-shrink:0">AMB</div><div style="flex:1"><div style="font-weight:500;color:#222">Alf Marlon Bø</div><div style="font-size:.8rem;color:#666">+47 982 17 529</div></div><span style="font-size:1.3rem">📱</span></div></a>
       </div>
     </div>
     <div class="card">
@@ -628,38 +554,12 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:#1a6b8a;box-sh
     </div>
     <div class="card">
       <h2>🌍 I nærheten</h2>
-      <p style="font-size:.85rem;color:#666;margin-bottom:1rem">Utforsk det beste Torremolinos har å by på – lenker åpner TripAdvisor.</p>
       <div style="display:flex;flex-direction:column;gap:.7rem">
-        <a href="https://www.tripadvisor.com/Restaurants-g187440-Torremolinos_Costa_del_Sol_Province_of_Malaga_Andalucia.html" target="_blank"
-          style="display:flex;align-items:center;gap:1rem;background:#f8f6f2;border-radius:12px;padding:1rem;text-decoration:none;border:1px solid #e8e4df;transition:.2s">
-          <span style="font-size:1.8rem">🍽️</span>
-          <div>
-            <div style="font-weight:500;color:#222">Restauranter</div>
-            <div style="font-size:.8rem;color:#888">De beste restaurantene i Torremolinos</div>
-          </div>
-          <span style="margin-left:auto;color:#1a6b8a;font-size:.8rem">TripAdvisor →</span>
-        </a>
-        <a href="https://www.tripadvisor.com/Attractions-g187440-Activities-Torremolinos_Costa_del_Sol_Province_of_Malaga_Andalucia.html" target="_blank"
-          style="display:flex;align-items:center;gap:1rem;background:#f8f6f2;border-radius:12px;padding:1rem;text-decoration:none;border:1px solid #e8e4df;transition:.2s">
-          <span style="font-size:1.8rem">🎭</span>
-          <div>
-            <div style="font-weight:500;color:#222">Attraksjoner og severdigheter</div>
-            <div style="font-size:.8rem;color:#888">Opplevelser og aktiviteter i nærheten</div>
-          </div>
-          <span style="margin-left:auto;color:#1a6b8a;font-size:.8rem">TripAdvisor →</span>
-        </a>
-        <a href="https://www.tripadvisor.com/Attractions-g187440-Activities-c26-Torremolinos_Costa_del_Sol_Province_of_Malaga_Andalucia.html" target="_blank"
-          style="display:flex;align-items:center;gap:1rem;background:#f8f6f2;border-radius:12px;padding:1rem;text-decoration:none;border:1px solid #e8e4df;transition:.2s">
-          <span style="font-size:1.8rem">🛍️</span>
-          <div>
-            <div style="font-weight:500;color:#222">Shopping</div>
-            <div style="font-size:.8rem;color:#888">Butikker og markeder i Torremolinos</div>
-          </div>
-          <span style="margin-left:auto;color:#1a6b8a;font-size:.8rem">TripAdvisor →</span>
-        </a>
+        <a href="https://www.tripadvisor.com/Restaurants-g187440-Torremolinos_Costa_del_Sol_Province_of_Malaga_Andalucia.html" target="_blank" style="display:flex;align-items:center;gap:1rem;background:#f8f6f2;border-radius:12px;padding:1rem;text-decoration:none;border:1px solid #e8e4df"><span style="font-size:1.8rem">🍽️</span><div><div style="font-weight:500;color:#222">Restauranter</div><div style="font-size:.8rem;color:#888">De beste i Torremolinos</div></div><span style="margin-left:auto;color:#1a6b8a;font-size:.8rem">TripAdvisor →</span></a>
+        <a href="https://www.tripadvisor.com/Attractions-g187440-Activities-Torremolinos_Costa_del_Sol_Province_of_Malaga_Andalucia.html" target="_blank" style="display:flex;align-items:center;gap:1rem;background:#f8f6f2;border-radius:12px;padding:1rem;text-decoration:none;border:1px solid #e8e4df"><span style="font-size:1.8rem">🎭</span><div><div style="font-weight:500;color:#222">Attraksjoner</div><div style="font-size:.8rem;color:#888">Opplevelser i nærheten</div></div><span style="margin-left:auto;color:#1a6b8a;font-size:.8rem">TripAdvisor →</span></a>
+        <a href="https://www.tripadvisor.com/Attractions-g187440-Activities-c26-Torremolinos_Costa_del_Sol_Province_of_Malaga_Andalucia.html" target="_blank" style="display:flex;align-items:center;gap:1rem;background:#f8f6f2;border-radius:12px;padding:1rem;text-decoration:none;border:1px solid #e8e4df"><span style="font-size:1.8rem">🛍️</span><div><div style="font-weight:500;color:#222">Shopping</div><div style="font-size:.8rem;color:#888">Butikker og markeder</div></div><span style="margin-left:auto;color:#1a6b8a;font-size:.8rem">TripAdvisor →</span></a>
       </div>
     </div>
-
     <div class="card">
       <h2>💰 Priser</h2>
       <div id="price-display" style="display:none"></div>
@@ -684,7 +584,10 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:#1a6b8a;box-sh
         <button class="tab" onclick="switchTab('prices',this)">Priser</button>
         <button class="tab" onclick="switchTab('block',this)">Blokker datoer</button>
       </div>
-      <div id="tab-abookings" class="section active"><div id="admin-booking-list"><div class="loading">Laster...</div></div></div>
+      <div id="tab-abookings" class="section active">
+        <div id="notif-list"></div>
+        <div id="admin-booking-list"><div class="loading">Laster...</div></div>
+      </div>
       <div id="tab-prices" class="section">
         <p style="font-size:.85rem;color:#666;margin-bottom:1rem">Endre priser per natt for hver sesong.</p>
         <div class="price-edit-grid">
@@ -703,7 +606,7 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:#1a6b8a;box-sh
         <div class="form-grid">
           <div><label>Fra dato</label><input type="date" id="b-from"></div>
           <div><label>Til dato</label><input type="date" id="b-to"></div>
-          <div class="form-full"><label>Årsak</label><input type="text" id="b-reason" placeholder="f.eks. Vedlikehold, Eget bruk..."></div>
+          <div class="form-full"><label>Årsak</label><input type="text" id="b-reason" placeholder="f.eks. Vedlikehold..."></div>
         </div>
         <button class="btn btn-sm" style="margin-top:.5rem" onclick="addBlock()">Blokker datoer</button>
       </div>
@@ -718,18 +621,10 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/fireba
 import { getFirestore, collection, doc, addDoc, getDocs, deleteDoc, setDoc, onSnapshot, query, orderBy } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 import { getStorage, ref, uploadBytesResumable, getDownloadURL, deleteObject, listAll } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-storage.js";
 
-const firebaseConfig = {
-  apiKey: "AIzaSyAGEz455uqkVANa0ERdWhT_f5_HNyec-ys",
-  authDomain: "torremolinos-db002.firebaseapp.com",
-  projectId: "torremolinos-db002",
-  storageBucket: "torremolinos-db002.firebasestorage.app",
-  messagingSenderId: "763731895295",
-  appId: "1:763731895295:web:c0755317aa4c6f4ba7bdca"
-};
-
-const app = initializeApp(firebaseConfig);
-const db  = getFirestore(app);
-const storage = getStorage(app);
+const firebaseConfig={apiKey:"AIzaSyAGEz455uqkVANa0ERdWhT_f5_HNyec-ys",authDomain:"torremolinos-db002.firebaseapp.com",projectId:"torremolinos-db002",storageBucket:"torremolinos-db002.firebasestorage.app",messagingSenderId:"763731895295",appId:"1:763731895295:web:c0755317aa4c6f4ba7bdca"};
+const app=initializeApp(firebaseConfig);
+const db=getFirestore(app);
+const storage=getStorage(app);
 
 const USERS=[
   {id:'SB', name:'Svein Bø',       initials:'SB',  pin:'7392',role:'admin',color:'#1a6b8a',bg:'#e8f4f8'},
@@ -813,26 +708,24 @@ let bookings=[],prices={low:900,mid:1200,high:1600,clean:550,minNights:4};
 let selStart=null,selEnd=null,calYear=new Date().getFullYear(),calMonth=new Date().getMonth();
 const MONTHS=['Januar','Februar','Mars','April','Mai','Juni','Juli','August','September','Oktober','November','Desember'];
 const DAYS=['Ma','Ti','On','To','Fr','Lø','Sø'];
+let lastSeenTimestamp=localStorage.getItem('trm-last-seen')||'1970-01-01T00:00:00.000Z';
 
-// ─── EmailJS varsling ─────────────────────────────────────────────────────
-async function sendEmail(type, data){
+// ─── Hjelpefunksjoner ──────────────────────────────────────────────────────
+function kategoriNavn(k){return k==='1'?'Kat.1 – Bø-familien':k==='2'?'Kat.2 – Barn/barnebarn':k==='3'?'Kat.3 – Venner/bonusbarn':'Kat.4 – Eksterne';}
+function priceForDate(d){const m=d.getMonth();if(m<=3||m>=10)return prices.low;if(m<=5||m===8)return prices.mid;return prices.high;}
+function calcStay(s,e){let total=0,nights=0,cur=new Date(s);const end=new Date(e);while(cur<end){total+=priceForDate(cur);nights++;cur.setDate(cur.getDate()+1);}return{total,nights};}
+function fmt(s){if(!s)return'';const[y,m,d]=s.split('-');return d+'.'+m+'.'+y;}
+
+// ─── EmailJS ──────────────────────────────────────────────────────────────
+async function sendEmail(type,data){
   try{
-    await emailjs.send('service_v9iwf59','template_jzkjrtk',{
-      type,
-      mottaker:'Svein',
-      melding: type==='🏠 Ny booking'
-        ? `Det er registrert en ny booking i Sol i Torremolinos.`
-        : `Det er meldt inn en ny skade i Sol i Torremolinos.`,
-      navn: data.navn||'',
-      fra: data.fra||'',
-      til: data.til||'',
-      ekstra: data.ekstra||'',
-    });
-    console.log('E-post sendt!');
+    await emailjs.send('service_v9iwf59','template_jzkjrtk',{type,mottaker:'Svein',
+      melding:type.includes('booking')||type.includes('Booking')?'Det er registrert endring i bookinger.':'Det er meldt inn en ny skade.',
+      navn:data.navn||'',fra:data.fra||'',til:data.til||'',ekstra:data.ekstra||''});
   }catch(e){console.warn('EmailJS feil:',e);}
 }
 
-// ─── Firebase listeners ───────────────────────────────────────────────────
+// ─── Firebase ─────────────────────────────────────────────────────────────
 function startListening(){
   const q=query(collection(db,'bookings'),orderBy('from'));
   onSnapshot(q,snap=>{
@@ -852,51 +745,38 @@ async function loadPrices(){
   renderPriceDisplay();
 }
 
-// ─── Bilder (Firebase Storage) ────────────────────────────────────────────
+// ─── Bilder ───────────────────────────────────────────────────────────────
 window.uploadImages=async function(files,folder){
   if(!files.length)return;
   const prog=document.getElementById('prog-'+folder);
   const fill=document.getElementById('prog-fill-'+folder);
-  prog.style.display='block';
+  if(prog)prog.style.display='block';
   let done=0;
   for(const file of files){
-    const ts=Date.now();
-    const uName=currentUser?currentUser.initials:'ukjent';
-    const path=`${folder}/${ts}_${uName}_${file.name}`;
-    const storageRef=ref(storage,path);
+    const path=`${folder}/${Date.now()}_${currentUser?.initials||'?'}_${file.name}`;
+    const sRef=ref(storage,path);
     await new Promise((res,rej)=>{
-      const task=uploadBytesResumable(storageRef,file);
-      task.on('state_changed',
-        snap=>{fill.style.width=(snap.bytesTransferred/snap.totalBytes*100)+'%';},
-        rej,
-        ()=>{done++;fill.style.width=(done/files.length*100)+'%';res();}
-      );
+      const task=uploadBytesResumable(sRef,file);
+      task.on('state_changed',s=>{if(fill)fill.style.width=(s.bytesTransferred/s.totalBytes*100)+'%';},rej,()=>{done++;res();});
     });
   }
-  setTimeout(()=>{prog.style.display='none';fill.style.width='0';},800);
+  setTimeout(()=>{if(prog)prog.style.display='none';if(fill)fill.style.width='0';},800);
   showToast(`${files.length} bilde${files.length>1?'r':''} lastet opp! ☁️`);
   loadImages(folder);
 };
 
 async function loadImages(folder){
-  const grid=document.getElementById('grid-'+folder);
-  if(!grid)return;
+  const grid=document.getElementById('grid-'+folder);if(!grid)return;
   grid.innerHTML='<div class="loading">Laster bilder...</div>';
   try{
-    const listRef=ref(storage,folder+'/');
-    const res=await listAll(listRef);
-    if(!res.items.length){grid.innerHTML='<p style="color:#aaa;font-size:.88rem;padding:.5rem 0">Ingen bilder ennå.</p>';return;}
+    const res=await listAll(ref(storage,folder+'/'));
+    if(!res.items.length){grid.innerHTML='<p style="color:#aaa;font-size:.88rem">Ingen bilder ennå.</p>';return;}
     grid.innerHTML='';
     for(const item of res.items){
       const url=await getDownloadURL(item);
-      const parts=item.name.split('_');
-      const who=parts[1]||'';
-      const thumb=document.createElement('div');
-      thumb.className='img-thumb';
-      thumb.innerHTML=`
-        <img src="${url}" alt="" loading="lazy" onclick="openLightbox('${url}')">
-        <button class="del-img" onclick="deleteImage(event,'${item.fullPath}','${folder}')" title="Slett">✕</button>
-        ${who?`<div class="img-caption">${who}</div>`:''}`;
+      const who=(item.name.split('_')[1])||'';
+      const thumb=document.createElement('div');thumb.className='img-thumb';
+      thumb.innerHTML=`<img src="${url}" alt="" loading="lazy" onclick="openLightbox('${url}')"><button class="del-img" onclick="deleteImage(event,'${item.fullPath}','${folder}')" title="Slett">✕</button>${who?`<div class="img-caption">${who}</div>`:''}`;
       grid.appendChild(thumb);
     }
   }catch(e){grid.innerHTML='<p style="color:#c0392b;font-size:.88rem">Kunne ikke laste bilder.</p>';}
@@ -904,21 +784,11 @@ async function loadImages(folder){
 
 window.deleteImage=async function(e,path,folder){
   e.stopPropagation();
-  try{
-    await deleteObject(ref(storage,path));
-    showToast('Bilde slettet!');
-    loadImages(folder);
-  }catch(err){showToast('Feil ved sletting','error');}
+  try{await deleteObject(ref(storage,path));showToast('Bilde slettet!');loadImages(folder);}
+  catch(err){showToast('Feil ved sletting','error');}
 };
-
-window.openLightbox=function(url){
-  document.getElementById('lightbox-img').src=url;
-  document.getElementById('lightbox').classList.add('open');
-};
-window.closeLightbox=function(){
-  document.getElementById('lightbox').classList.remove('open');
-  document.getElementById('lightbox-img').src='';
-};
+window.openLightbox=function(url){document.getElementById('lightbox-img').src=url;document.getElementById('lightbox').classList.add('open');};
+window.closeLightbox=function(){document.getElementById('lightbox').classList.remove('open');document.getElementById('lightbox-img').src='';};
 
 // ─── Login ────────────────────────────────────────────────────────────────
 function buildLoginUI(){
@@ -926,19 +796,13 @@ function buildLoginUI(){
   USERS.filter(u=>u.role!=='guest').forEach(u=>{
     const b=document.createElement('button');b.className='user-btn';b.id='ubtn-'+u.id;
     b.onclick=()=>selectUser(u.id);
-    b.innerHTML=`<div class="initials" style="background:${u.bg};color:${u.color}">${u.initials}</div>
-      <div class="uname">${u.name.split(' ')[0]}</div>
-      <div class="urole">Admin</div>`;
+    b.innerHTML=`<div class="initials" style="background:${u.bg};color:${u.color}">${u.initials}</div><div class="uname">${u.name.split(' ')[0]}</div><div class="urole">Admin</div>`;
     btns.appendChild(b);
   });
-  // Gjest-knapp nederst
   const g=document.createElement('button');
-  g.className='user-btn';g.id='ubtn-GUEST';
-  g.style.cssText='grid-column:1/-1;background:#f8f6f2;';
+  g.className='user-btn';g.id='ubtn-GUEST';g.style.cssText='grid-column:1/-1;background:#f8f6f2;';
   g.onclick=()=>selectUser('GUEST');
-  g.innerHTML=`<div class="initials" style="background:#f0ece8;color:#888;margin:0 auto .4rem">🏖️</div>
-    <div class="uname">Gjest</div>
-    <div class="urole">Leietaker</div>`;
+  g.innerHTML=`<div class="initials" style="background:#f0ece8;color:#888;margin:0 auto .4rem">🏖️</div><div class="uname">Gjest</div><div class="urole">Leietaker</div>`;
   btns.appendChild(g);
 }
 
@@ -1003,25 +867,16 @@ function initApp(){
   const chip=document.getElementById('user-chip-bar');
   chip.className='user-chip'+(isGuest?'':' admin-chip');
   chip.innerHTML=`<span style="width:28px;height:28px;border-radius:50%;background:${u.bg};color:${u.color};display:inline-flex;align-items:center;justify-content:center;font-weight:600;font-size:.78rem">${isGuest?'🏖️':u.initials}</span> ${isGuest?'Gjest':u.name+' · Admin'}`;
-  // Skjul/vis nav-knapper basert på rolle
   const guestHide=['nav-bookings','nav-bilder','nav-oversikt','admin-nav-btn'];
-  guestHide.forEach(id=>{
-    const el=document.getElementById(id);
-    if(el) el.style.display=isGuest?'none':'block';
-  });
-  // Sett alle knapper til synlige for admin
-  document.querySelectorAll('nav button').forEach(btn=>{
-    if(!guestHide.includes(btn.id)) btn.style.display='block';
-  });
+  guestHide.forEach(id=>{const el=document.getElementById(id);if(el)el.style.display=isGuest?'none':'block';});
+  document.querySelectorAll('nav button').forEach(btn=>{if(!guestHide.includes(btn.id))btn.style.display='block';});
   const whoSel=document.getElementById('f-who');if(whoSel)whoSel.value=u.id;
   renderCal();renderPriceDisplay();
   if(!isGuest){renderAllBookings();renderAdmin();}
-  // Finn første synlige nav-knapp
-  const firstBtn=document.querySelector('nav button:not([style*="display: none"]):not([style*="display:none"])');
-  showPage('cal', firstBtn||document.querySelector('nav button'));
+  showPage('cal',document.querySelector('nav button'));
 }
 
-// ─── Calendar ─────────────────────────────────────────────────────────────
+// ─── Kalender ─────────────────────────────────────────────────────────────
 function blockedSet(){const s=new Set();bookings.forEach(b=>{let d=new Date(b.from),e=new Date(b.to);while(d<e){s.add(d.toISOString().split('T')[0]);d.setDate(d.getDate()+1);}});return s;}
 
 function renderCal(){
@@ -1066,103 +921,94 @@ function pickDate(ds,blocked){
   renderCal();
 }
 
-function priceForDate(d){const m=d.getMonth();if(m<=3||m>=10)return prices.low;if(m<=5||m===8)return prices.mid;return prices.high;}
-function calcStay(s,e){let total=0,nights=0,cur=new Date(s);const end=new Date(e);while(cur<end){total+=priceForDate(cur);nights++;cur.setDate(cur.getDate()+1);}return{total,nights};}
-
-function calcKategoriPris(kat,nights,guests){
-  switch(kat){
-    case '1': return 0;
-    case '2': return 100;
-    case '3': return 200*parseInt(guests)*nights;
-    case '4': return 1400*nights;
-    default:  return 0;
-  }
-}
-function kategoriNavn(kat){
-  switch(kat){
-    case '1': return 'Kategori 1 – Bø-familien';
-    case '2': return 'Kategori 2 – Barn/barnebarn';
-    case '3': return 'Kategori 3 – Venner/bonusbarn';
-    case '4': return 'Kategori 4 – Eksterne gjester';
-    default:  return 'Ukjent';
-  }
-}
-
-window.updateKategori=function(){
-  if(!selStart||!selEnd)return;
-  const kat=document.getElementById('f-kategori')?.value||'1';
-  const guests=parseInt(document.getElementById('f-guests')?.value||'1');
-  const{nights}=calcStay(selStart,selEnd);
-  const overrideRow=document.getElementById('override-price-row');
-  const overrideInput=document.getElementById('f-override-price');
-  const relasjonRow=document.getElementById('gjest-relasjon-row');
-  const relasjonListe=document.getElementById('gjest-relasjon-liste');
-
-  // Vis overstyringsfelt kun for kategori 4
-  if(overrideRow)overrideRow.style.display=kat==='4'?'block':'none';
-
-  // Vis relasjonsfelt kun for kategori 2
-  if(relasjonRow&&relasjonListe){
-  // Vis alltid relasjonsfelt
-  if(relasjonRow&&relasjonListe){
-    relasjonRow.style.display='block';
-    relasjonListe.innerHTML='';
-    for(let i=1;i<=guests;i++){
-      const wrap=document.createElement('div');
-      wrap.style.cssText='display:flex;align-items:center;gap:.5rem';
-      wrap.innerHTML=`<span style="font-size:.82rem;color:#555;width:60px;flex-shrink:0">Gjest ${i}:</span>
-        <select id="relasjon-${i}" style="flex:1;padding:.5rem .7rem;border:1px solid #d8d4cf;border-radius:8px;font-size:.88rem">
-          <option value="bror">👨 Bø-bror</option>
-          <option value="mor">👵 Mor</option>
-          <option value="kone_kjaereste">💑 Kone/Kjæreste (Bø-bror)</option>
-          <option value="barn">👨‍👧 Barn</option>
-          <option value="barnebarn">👶 Barnebarn</option>
-          <option value="fosterbarn">🏠 Fosterbarn</option>
-          <option value="bonusbarn">👨‍👧 Bonusbarn</option>
-          <option value="bonusbarnebarn">👶 Bonusbarnebarn</option>
-          <option value="ektefelle_barn">💑 Ektefelle/Kjæreste (barn)</option>
-          <option value="venn">👫 Venn</option>
-          <option value="ekstern">🌍 Ekstern gjest</option>
-          <option value="annet">📍 Annet</option>
-        </select>`;
-      relasjonListe.appendChild(wrap);
-    }
-  }
-  }
-
-  let total=calcKategoriPris(kat,nights,guests);
-  if(kat==='4'&&overrideInput&&overrideInput.value)total=parseInt(overrideInput.value);
-  const pb=document.getElementById('price-box');if(!pb)return;
-  let priceInfo='';
-  if(kat==='1')priceInfo='Gratis for Bø-familien';
-  else if(kat==='2')priceInfo='Fast pris: kr 100,- totalt';
-  else if(kat==='3')priceInfo=`kr 200,- × ${guests} gjester × ${nights} netter = kr ${(200*guests*nights).toLocaleString('no-NO')},-`;
-  else if(kat==='4')priceInfo=overrideInput?.value?'Avtalt pris (overstyrt)':`kr 1 400,- × ${nights} netter`;
-  pb.innerHTML=`
-    <div class="price-row"><span>Kategori</span><span>${kategoriNavn(kat)}</span></div>
-    <div class="price-row"><span>Beregning</span><span>${priceInfo}</span></div>
-    <div class="price-row total"><span>Totalt</span><span>kr ${total.toLocaleString('no-NO')}</span></div>`;
-};
-
 function updateSummary(){
   const el=document.getElementById('date-summary');
   const fs=document.getElementById('booking-form-section');
   const isGuest=currentUser?.role==='guest';
   if(selStart&&selEnd){
     const{nights}=calcStay(selStart,selEnd);
-    if(nights<prices.minNights){el.textContent=`Minimumsleie er ${prices.minNights} netter.`;el.style.color='#c0392b';fs.style.display='none';return;}
+    if(nights<prices.minNights){el.textContent=`Minimumsleie er ${prices.minNights} netter.`;el.style.color='#c0392b';if(fs)fs.style.display='none';return;}
     el.style.color='#1a6b8a';
     el.textContent=`Innsjekk: ${fmt(selStart)}  →  Utsjekk: ${fmt(selEnd)}  (${nights} netter)`;
-    fs.style.display=isGuest?'none':'block';
-    if(!isGuest) updateKategori();
+    if(fs)fs.style.display=isGuest?'none':'block';
+    if(!isGuest)updateGjestListe();
   } else if(selStart){
-    el.style.color='#1a6b8a';el.textContent=`Innsjekk: ${fmt(selStart)}  —  Velg utsjekk-dato`;fs.style.display='none';
-  } else {el.textContent='';fs.style.display='none';}
+    el.style.color='#1a6b8a';el.textContent=`Innsjekk: ${fmt(selStart)}  —  Velg utsjekk-dato`;
+    if(fs)fs.style.display='none';
+  } else {el.textContent='';if(fs)fs.style.display='none';}
 }
 
 window.clearSelection=function(){selStart=null;selEnd=null;renderCal();};
-function fmt(s){if(!s)return'';const[y,m,d]=s.split('-');return d+'.'+m+'.'+y;}
 window.changeMonth=function(dir){calMonth+=dir;if(calMonth>11){calMonth=0;calYear++;}if(calMonth<0){calMonth=11;calYear--;}renderCal();};
+
+// ─── Gjestliste og prisberegning ──────────────────────────────────────────
+window.updateGjestListe=function(){
+  if(!selStart||!selEnd)return;
+  const guests=parseInt(document.getElementById('f-guests')?.value||'1');
+  const gjestListe=document.getElementById('gjest-liste');
+  if(!gjestListe)return;
+  gjestListe.innerHTML='';
+  for(let i=1;i<=guests;i++){
+    const div=document.createElement('div');
+    div.className='gjest-box';
+    div.innerHTML=`
+      <div style="font-size:.82rem;font-weight:600;color:#1a6b8a;margin-bottom:.5rem">Gjest ${i}</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:.5rem">
+        <div><label style="font-size:.78rem">Navn (valgfritt)</label>
+          <input type="text" id="g-navn-${i}" placeholder="Navn..." style="padding:.4rem .6rem;font-size:.85rem">
+        </div>
+        <div><label style="font-size:.78rem">Relasjon</label>
+          <select id="g-rel-${i}" style="padding:.4rem .6rem;font-size:.85rem">
+            <option value="bror">👨 Bø-bror</option>
+            <option value="mor">👵 Mor</option>
+            <option value="kone">💑 Kone/Kjæreste (Bø-bror)</option>
+            <option value="barn">👨‍👧 Barn</option>
+            <option value="barnebarn">👶 Barnebarn</option>
+            <option value="fosterbarn">🏠 Fosterbarn</option>
+            <option value="bonusbarn">👨‍👧 Bonusbarn</option>
+            <option value="bonusbarnebarn">👶 Bonusbarnebarn</option>
+            <option value="ektefelle_barn">💑 Ektefelle/Kjæreste (barn)</option>
+            <option value="venn">👫 Venn</option>
+            <option value="ekstern">🌍 Ekstern gjest</option>
+            <option value="annet">📍 Annet</option>
+          </select>
+        </div>
+        <div style="grid-column:1/-1"><label style="font-size:.78rem">Kategori</label>
+          <select id="g-kat-${i}" onchange="beregnPris()" style="padding:.4rem .6rem;font-size:.85rem">
+            <option value="1">🏠 Kat. 1 – Bø-familien (kr 0,-)</option>
+            <option value="2">👨‍👩‍👧 Kat. 2 – Barn/barnebarn (kr 100,- totalt)</option>
+            <option value="3">👥 Kat. 3 – Venner/bonusbarn (kr 200,- pr døgn)</option>
+            <option value="4">🌍 Kat. 4 – Ekstern (kr 1 400,- pr natt)</option>
+          </select>
+        </div>
+      </div>`;
+    gjestListe.appendChild(div);
+  }
+  beregnPris();
+};
+
+window.beregnPris=function(){
+  if(!selStart||!selEnd)return;
+  const{nights}=calcStay(selStart,selEnd);
+  const guests=parseInt(document.getElementById('f-guests')?.value||'1');
+  const overrideRow=document.getElementById('override-price-row');
+  const overrideInput=document.getElementById('f-override-price');
+  let total=0,harKat4=false,antallKat2=0;
+  let linjer=[];
+  for(let i=1;i<=guests;i++){
+    const kat=document.getElementById(`g-kat-${i}`)?.value||'1';
+    if(kat==='4')harKat4=true;
+    if(kat==='2'){antallKat2++;linjer.push(`<div class="price-row"><span>Gjest ${i}</span><span>kr 100,- (deles)</span></div>`);}
+    else if(kat==='1'){linjer.push(`<div class="price-row"><span>Gjest ${i}</span><span>kr 0,-</span></div>`);}
+    else if(kat==='3'){const p=200*nights;total+=p;linjer.push(`<div class="price-row"><span>Gjest ${i}</span><span>kr 200 × ${nights} netter = kr ${p.toLocaleString('no-NO')},-</span></div>`);}
+    else if(kat==='4'){const p=1400*nights;total+=p;linjer.push(`<div class="price-row"><span>Gjest ${i}</span><span>kr 1 400 × ${nights} netter = kr ${p.toLocaleString('no-NO')},-</span></div>`);}
+  }
+  if(antallKat2>0)total+=100;
+  if(overrideRow)overrideRow.style.display=harKat4?'block':'none';
+  if(harKat4&&overrideInput&&overrideInput.value)total=parseInt(overrideInput.value);
+  const pb=document.getElementById('price-box');if(!pb)return;
+  pb.innerHTML=linjer.join('')+`<div class="price-row total"><span>Totalt</span><span>kr ${total.toLocaleString('no-NO')},-</span></div>`;
+};
 
 // ─── Submit booking ───────────────────────────────────────────────────────
 window.submitBooking=async function(){
@@ -1170,26 +1016,38 @@ window.submitBooking=async function(){
   const whoId=document.getElementById('f-who').value;
   const who=USERS.find(u=>u.id===whoId);
   const renter=document.getElementById('f-renter').value.trim()||who.name;
-  const{total,nights}=calcStay(selStart,selEnd);
+  const guests=parseInt(document.getElementById('f-guests').value);
+  const{nights}=calcStay(selStart,selEnd);
   if(nights<prices.minNights)return showToast(`Minimum ${prices.minNights} netter`,'error');
+  const overrideInput=document.getElementById('f-override-price');
+  let total=0,antallKat2=0,harKat4=false;
+  let gjesteInfo=[];
+  for(let i=1;i<=guests;i++){
+    const kat=document.getElementById(`g-kat-${i}`)?.value||'1';
+    const rel=document.getElementById(`g-rel-${i}`)?.options[document.getElementById(`g-rel-${i}`)?.selectedIndex]?.text||'';
+    const navn=document.getElementById(`g-navn-${i}`)?.value||'';
+    if(kat==='2')antallKat2++;
+    else if(kat==='3')total+=200*nights;
+    else if(kat==='4'){total+=1400*nights;harKat4=true;}
+    gjesteInfo.push({gjest:i,navn,relasjon:rel,kategori:kat,kategoriNavn:kategoriNavn(kat)});
+  }
+  if(antallKat2>0)total+=100;
+  if(harKat4&&overrideInput&&overrideInput.value)total=parseInt(overrideInput.value);
+  const relasjoner=gjesteInfo.map(g=>`Gjest ${g.gjest}${g.navn?' ('+g.navn+')':''}: ${g.relasjon} – ${g.kategoriNavn}`);
   const b={userId:whoId,userInitials:who.initials,name:renter,registeredBy:who.name,
     email:document.getElementById('f-email').value,phone:document.getElementById('f-phone').value,
-    guests:document.getElementById('f-guests').value,from:selStart,to:selEnd,nights,
-    msg:document.getElementById('f-msg').value,status:'confirmed',revenue:total+prices.clean,
+    guests:guests.toString(),gjesteInfo,relasjoner,from:selStart,to:selEnd,nights,
+    msg:document.getElementById('f-msg').value,status:'confirmed',revenue:total,
     createdAt:new Date().toISOString()};
   try{
     await addDoc(collection(db,'bookings'),b);
     selStart=null;selEnd=null;
     document.getElementById('booking-form-section').style.display='none';
-    ['f-renter','f-email','f-phone','f-msg'].forEach(id=>document.getElementById(id).value='');
+    ['f-renter','f-email','f-phone','f-msg','f-override-price'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+    document.getElementById('gjest-liste').innerHTML='';
+    document.getElementById('price-box').innerHTML='';
     showToast('Bestilling lagret! ☁️');
-    // Send e-postvarsel
-    await sendEmail('🏠 Ny booking',{
-      navn: b.name,
-      fra: fmt(b.from),
-      til: fmt(b.to),
-      ekstra: `${b.nights} netter · ${b.guests} gjester · kr ${b.revenue.toLocaleString('no-NO')} · Registrert av: ${b.registeredBy}`
-    });
+    await sendEmail('🏠 Ny booking',{navn:b.name,fra:fmt(b.from),til:fmt(b.to),ekstra:`${b.nights} netter · ${b.guests} gjester · kr ${b.revenue.toLocaleString('no-NO')} · Registrert av: ${b.registeredBy}\n${relasjoner.join(', ')}`});
   }catch(e){showToast('Feil: '+e.message,'error');}
 };
 
@@ -1237,6 +1095,7 @@ function renderAdmin(){
           <div style="font-weight:500">${b.name}</div>
           <div style="font-size:.82rem;color:#666">${fmt(b.from)} → ${fmt(b.to)} · ${b.nights} netter${b.guests>0?' · '+b.guests+' gjester':''}</div>
           ${b.registeredBy&&b.registeredBy!==b.name?`<div style="font-size:.78rem;color:#aaa">Reg. av: ${b.registeredBy}</div>`:''}
+          ${b.relasjoner&&b.relasjoner.length?`<div style="font-size:.78rem;color:#888;margin-top:.2rem">${b.relasjoner.join(' · ')}</div>`:''}
           ${b.revenue?`<div style="font-size:.82rem;color:#1e7e34;font-weight:500">kr ${b.revenue.toLocaleString('no-NO')}</div>`:''}
         </div>
       </div>
@@ -1285,14 +1144,8 @@ window.saveEdit=async function(){
     status:document.getElementById('e-status').value};
   try{
     await setDoc(doc(db,'bookings',firestoreId),updated,{merge:true});
-    closeEdit();
-    showToast('Booking oppdatert! ☁️');
-    await sendEmail('✏️ Booking endret',{
-      navn: updated.name,
-      fra: fmt(updated.from),
-      til: fmt(updated.to),
-      ekstra: `${updated.nights} netter · ${updated.guests} gjester · kr ${updated.revenue.toLocaleString('no-NO')} · Endret av: ${currentUser.name}`
-    });
+    closeEdit();showToast('Booking oppdatert! ☁️');
+    await sendEmail('✏️ Booking endret',{navn:updated.name,fra:fmt(updated.from),til:fmt(updated.to),ekstra:`${updated.nights} netter · Endret av: ${currentUser.name}`});
   }catch(e){showToast('Feil: '+e.message,'error');}
 };
 window.deleteB=async function(firestoreId){
@@ -1300,12 +1153,7 @@ window.deleteB=async function(firestoreId){
   try{
     await deleteDoc(doc(db,'bookings',firestoreId));
     showToast('Booking slettet!');
-    await sendEmail('🗑️ Booking slettet',{
-      navn: b?.name||'Ukjent',
-      fra: fmt(b?.from||''),
-      til: fmt(b?.to||''),
-      ekstra: `${b?.nights||0} netter · Slettet av: ${currentUser.name}`
-    });
+    await sendEmail('🗑️ Booking slettet',{navn:b?.name||'',fra:fmt(b?.from||''),til:fmt(b?.to||''),ekstra:`Slettet av: ${currentUser.name}`});
   }catch(e){showToast('Feil ved sletting','error');}
 };
 window.savePrices=async function(){
@@ -1318,14 +1166,9 @@ window.savePrices=async function(){
 function renderPriceDisplay(){
   const isGuest=currentUser?.role==='guest';
   const el=document.getElementById('price-display');
-  const elGuest=document.getElementById('price-display-guest');
-  if(isGuest){
-    if(el)el.style.display='none';
-    if(elGuest)elGuest.style.display='block';
-    return;
-  }
-  if(el)el.style.display='block';
-  if(elGuest)elGuest.style.display='none';
+  const elG=document.getElementById('price-display-guest');
+  if(isGuest){if(el)el.style.display='none';if(elG)elG.style.display='block';return;}
+  if(el)el.style.display='block';if(elG)elG.style.display='none';
   el.innerHTML=`
     <div class="summary-row"><span>Lavsesong (jan–apr, nov–des)</span><span><b>kr ${prices.low.toLocaleString('no-NO')}/natt</b></span></div>
     <div class="summary-row"><span>Midtsesong (mai–jun, sep–okt)</span><span><b>kr ${prices.mid.toLocaleString('no-NO')}/natt</b></span></div>
@@ -1338,8 +1181,7 @@ window.addBlock=async function(){
   if(!from||!to||from>=to)return showToast('Velg gyldige datoer','error');
   const{nights}=calcStay(from,to);
   try{
-    await addDoc(collection(db,'bookings'),{userId:'SB',userInitials:'SB',name:'Blokk: '+reason,
-      registeredBy:'Svein Bø',email:'',phone:'',guests:0,from,to,nights,msg:'',status:'blocked',revenue:0,createdAt:new Date().toISOString()});
+    await addDoc(collection(db,'bookings'),{userId:'SB',userInitials:'SB',name:'Blokk: '+reason,registeredBy:'Svein Bø',email:'',phone:'',guests:'0',from,to,nights,msg:'',status:'blocked',revenue:0,createdAt:new Date().toISOString()});
     ['b-from','b-to','b-reason'].forEach(id=>document.getElementById(id).value='');
     showToast('Datoer blokkert!');
   }catch(e){showToast('Feil: '+e.message,'error');}
@@ -1348,70 +1190,39 @@ window.addBlock=async function(){
 // ─── Anbefalinger ─────────────────────────────────────────────────────────
 window.openTips=function(){document.getElementById('tips-modal').style.display='block';};
 window.closeTips=function(){document.getElementById('tips-modal').style.display='none';};
-
 window.saveTip=async function(){
   const navn=document.getElementById('tip-navn').value.trim();
-  if(!navn)return showToast('Skriv inn navn på stedet','error');
+  if(!navn)return showToast('Skriv inn navn','error');
   const kat=document.getElementById('tip-kategori').value;
-  const tip={
-    navn, kat,
-    adresse:document.getElementById('tip-adresse').value.trim(),
-    beskrivelse:document.getElementById('tip-beskrivelse').value.trim(),
-    rating:+document.getElementById('tip-rating').value,
-    userId:currentUser.id,
-    userInitials:currentUser.initials,
-    createdAt:new Date().toISOString(),
-    bildeUrl:''
-  };
-  // Last opp bilde hvis valgt
+  const tip={navn,kat,adresse:document.getElementById('tip-adresse').value.trim(),beskrivelse:document.getElementById('tip-beskrivelse').value.trim(),rating:+document.getElementById('tip-rating').value,userId:currentUser.id,userInitials:currentUser.role==='guest'?'🏖️':currentUser.initials,createdAt:new Date().toISOString(),bildeUrl:''};
   const bildeInput=document.getElementById('tip-bilde');
   if(bildeInput.files.length){
-    const file=bildeInput.files[0];
-    const path=`tips/${kat}/${Date.now()}_${file.name}`;
-    const storageRef=ref(storage,path);
-    await new Promise((res,rej)=>{
-      const task=uploadBytesResumable(storageRef,file);
-      task.on('state_changed',null,rej,async()=>{
-        tip.bildeUrl=await getDownloadURL(storageRef);
-        res();
-      });
-    });
+    const file=bildeInput.files[0];const path=`tips/${kat}/${Date.now()}_${file.name}`;const sRef=ref(storage,path);
+    await new Promise((res,rej)=>{const task=uploadBytesResumable(sRef,file);task.on('state_changed',null,rej,async()=>{tip.bildeUrl=await getDownloadURL(sRef);res();});});
   }
   try{
-    await addDoc(collection(db,'tips'),tip);
-    closeTips();
-    document.getElementById('tip-navn').value='';
-    document.getElementById('tip-adresse').value='';
-    document.getElementById('tip-beskrivelse').value='';
-    document.getElementById('tip-bilde').value='';
-    document.getElementById('tip-rating').value='5';
-    showToast('Anbefaling lagret! ⭐');
-    renderTips(kat);
+    await addDoc(collection(db,'tips'),tip);closeTips();
+    ['tip-navn','tip-adresse','tip-beskrivelse'].forEach(id=>document.getElementById(id).value='');
+    document.getElementById('tip-bilde').value='';document.getElementById('tip-rating').value='5';
+    showToast('Anbefaling lagret! ⭐');renderTips(kat);
   }catch(e){showToast('Feil: '+e.message,'error');}
 };
-
 async function renderTips(kat){
   const el=document.getElementById('tips-'+kat);if(!el)return;
   el.innerHTML='<div class="loading">Laster...</div>';
   try{
     const snap=await getDocs(query(collection(db,'tips'),orderBy('createdAt','desc')));
     const tips=snap.docs.map(d=>({...d.data(),firestoreId:d.id})).filter(t=>t.kat===kat);
-    if(!tips.length){el.innerHTML='<p style="color:#aaa;font-size:.88rem;padding:.5rem 0">Ingen anbefalinger ennå – vær den første! 😊</p>';return;}
+    if(!tips.length){el.innerHTML='<p style="color:#aaa;font-size:.88rem;padding:.5rem 0">Ingen anbefalinger ennå 😊</p>';return;}
     el.innerHTML='';
     tips.forEach(t=>{
       const u=USERS.find(x=>x.id===t.userId)||{initials:'?',color:'#888',bg:'#eee'};
       const stars='⭐'.repeat(t.rating);
-      const div=document.createElement('div');
-      div.style.cssText='border:1px solid #e8e4df;border-radius:12px;overflow:hidden;margin-bottom:.8rem';
-      div.innerHTML=`
-        ${t.bildeUrl?`<img src="${t.bildeUrl}" style="width:100%;height:160px;object-fit:cover;display:block" onclick="openLightbox('${t.bildeUrl}')" loading="lazy">`:''}
+      const div=document.createElement('div');div.style.cssText='border:1px solid #e8e4df;border-radius:12px;overflow:hidden;margin-bottom:.8rem';
+      div.innerHTML=`${t.bildeUrl?`<img src="${t.bildeUrl}" style="width:100%;height:160px;object-fit:cover;display:block;cursor:pointer" onclick="openLightbox('${t.bildeUrl}')" loading="lazy">`:''}
         <div style="padding:1rem">
           <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:.5rem">
-            <div>
-              <div style="font-weight:600;font-size:1rem">${t.navn}</div>
-              ${t.adresse?`<div style="font-size:.8rem;color:#888;margin:.2rem 0">📍 ${t.adresse}</div>`:''}
-              <div style="font-size:.85rem;margin:.1rem 0">${stars}</div>
-            </div>
+            <div><div style="font-weight:600;font-size:1rem">${t.navn}</div>${t.adresse?`<div style="font-size:.8rem;color:#888;margin:.2rem 0">📍 ${t.adresse}</div>`:''}<div style="font-size:.85rem;margin:.1rem 0">${stars}</div></div>
             <div style="display:flex;align-items:center;gap:.4rem;flex-shrink:0">
               <div style="width:28px;height:28px;border-radius:50%;background:${u.bg};color:${u.color};display:flex;align-items:center;justify-content:center;font-weight:600;font-size:.72rem">${u.initials}</div>
               <button class="del-btn" onclick="deleteTip('${t.firestoreId}','${kat}','${t.bildeUrl}')">Slett</button>
@@ -1421,91 +1232,50 @@ async function renderTips(kat){
         </div>`;
       el.appendChild(div);
     });
-  }catch(e){el.innerHTML='<p style="color:#c0392b;font-size:.88rem">Kunne ikke laste anbefalinger.</p>';}
+  }catch(e){el.innerHTML='<p style="color:#c0392b;font-size:.88rem">Kunne ikke laste.</p>';}
 }
-
 window.deleteTip=async function(firestoreId,kat,bildeUrl){
-  try{
-    await deleteDoc(doc(db,'tips',firestoreId));
-    if(bildeUrl){try{await deleteObject(ref(storage,bildeUrl));}catch(e){}}
-    showToast('Anbefaling slettet!');
-    renderTips(kat);
-  }catch(e){showToast('Feil ved sletting','error');}
+  try{await deleteDoc(doc(db,'tips',firestoreId));if(bildeUrl){try{await deleteObject(ref(storage,bildeUrl));}catch(e){}}showToast('Anbefaling slettet!');renderTips(kat);}
+  catch(e){showToast('Feil','error');}
 };
 
 // ─── Skade ────────────────────────────────────────────────────────────────
 window.openSkadeModal=function(){document.getElementById('skade-modal').style.display='block';};
 window.closeSkadeModal=function(){document.getElementById('skade-modal').style.display='none';};
-
 window.saveSkade=async function(){
   const tittel=document.getElementById('skade-tittel').value.trim();
   if(!tittel)return showToast('Beskriv hva som er skadet','error');
-  const skade={
-    tittel,
-    sted:document.getElementById('skade-sted').value,
-    beskrivelse:document.getElementById('skade-beskrivelse').value.trim(),
-    userId:currentUser.id,
-    userName:currentUser.role==='guest'?'Gjest':currentUser.name,
-    userInitials:currentUser.role==='guest'?'🏖️':currentUser.initials,
-    status:'åpen',
-    bildeUrl:'',
-    createdAt:new Date().toISOString(),
-  };
+  const skade={tittel,sted:document.getElementById('skade-sted').value,beskrivelse:document.getElementById('skade-beskrivelse').value.trim(),userId:currentUser.id,userName:currentUser.role==='guest'?'Gjest':currentUser.name,userInitials:currentUser.role==='guest'?'🏖️':currentUser.initials,status:'åpen',bildeUrl:'',createdAt:new Date().toISOString()};
   const bildeInput=document.getElementById('skade-bilde');
   if(bildeInput.files.length){
-    const file=bildeInput.files[0];
-    const path=`skader/${Date.now()}_${file.name}`;
-    const storageRef=ref(storage,path);
-    await new Promise((res,rej)=>{
-      const task=uploadBytesResumable(storageRef,file);
-      task.on('state_changed',null,rej,async()=>{
-        skade.bildeUrl=await getDownloadURL(storageRef);
-        res();
-      });
-    });
+    const file=bildeInput.files[0];const path=`skader/${Date.now()}_${file.name}`;const sRef=ref(storage,path);
+    await new Promise((res,rej)=>{const task=uploadBytesResumable(sRef,file);task.on('state_changed',null,rej,async()=>{skade.bildeUrl=await getDownloadURL(sRef);res();});});
   }
   try{
-    await addDoc(collection(db,'skader'),skade);
-    closeSkadeModal();
-    document.getElementById('skade-tittel').value='';
-    document.getElementById('skade-beskrivelse').value='';
+    await addDoc(collection(db,'skader'),skade);closeSkadeModal();
+    ['skade-tittel','skade-beskrivelse'].forEach(id=>document.getElementById(id).value='');
     document.getElementById('skade-bilde').value='';
-    showToast('Skade innmeldt! ⚠️');
-    renderSkader();
-    // Send e-postvarsel
-    await sendEmail('⚠️ Ny skade meldt inn',{
-      navn: skade.userName,
-      fra: new Date().toLocaleDateString('no-NO'),
-      til: skade.sted,
-      ekstra: skade.beskrivelse||'Ingen beskrivelse'
-    });
+    showToast('Skade innmeldt! ⚠️');renderSkader();
+    await sendEmail('⚠️ Ny skade meldt inn',{navn:skade.userName,fra:new Date().toLocaleDateString('no-NO'),til:skade.sted,ekstra:skade.beskrivelse||'Ingen beskrivelse'});
   }catch(e){showToast('Feil: '+e.message,'error');}
 };
-
 async function renderSkader(){
   const el=document.getElementById('skade-liste');if(!el)return;
   el.innerHTML='<div class="loading">Laster...</div>';
   try{
     const snap=await getDocs(query(collection(db,'skader'),orderBy('createdAt','desc')));
     const skader=snap.docs.map(d=>({...d.data(),firestoreId:d.id}));
-    if(!skader.length){el.innerHTML='<p style="color:#aaa;font-size:.88rem;padding:.5rem 0">Ingen skader innmeldt. 👍</p>';return;}
+    if(!skader.length){el.innerHTML='<p style="color:#aaa;font-size:.88rem">Ingen skader innmeldt. 👍</p>';return;}
     el.innerHTML='';
     skader.forEach(s=>{
       const isAdmin=currentUser?.role==='admin';
-      const statusColor=s.status==='løst'?'#d4edda':'#fde8e8';
-      const statusTextColor=s.status==='løst'?'#1e7e34':'#c0392b';
-      const div=document.createElement('div');
-      div.style.cssText=`border:1px solid #e8e4df;border-radius:12px;overflow:hidden;margin-bottom:.8rem;background:${s.status==='løst'?'#f8fdf9':'#fff'}`;
-      div.innerHTML=`
-        ${s.bildeUrl?`<img src="${s.bildeUrl}" style="width:100%;height:180px;object-fit:cover;display:block;cursor:pointer" onclick="openLightbox('${s.bildeUrl}')" loading="lazy">`:''}
+      const sColor=s.status==='løst'?'#d4edda':'#fde8e8';const sTColor=s.status==='løst'?'#1e7e34':'#c0392b';
+      const div=document.createElement('div');div.style.cssText=`border:1px solid #e8e4df;border-radius:12px;overflow:hidden;margin-bottom:.8rem;background:${s.status==='løst'?'#f8fdf9':'#fff'}`;
+      div.innerHTML=`${s.bildeUrl?`<img src="${s.bildeUrl}" style="width:100%;height:180px;object-fit:cover;display:block;cursor:pointer" onclick="openLightbox('${s.bildeUrl}')" loading="lazy">`:''}
         <div style="padding:1rem">
           <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:.5rem;flex-wrap:wrap">
-            <div>
-              <div style="font-weight:600;font-size:.95rem">${s.tittel}</div>
-              <div style="font-size:.8rem;color:#888;margin:.2rem 0">📍 ${s.sted}</div>
-              <div style="font-size:.8rem;color:#888">👤 ${s.userName} · ${new Date(s.createdAt).toLocaleDateString('no-NO')}</div>
-            </div>
-            <span style="background:${statusColor};color:${statusTextColor};border-radius:20px;padding:.2rem .8rem;font-size:.78rem;font-weight:500;flex-shrink:0">${s.status==='løst'?'✅ Løst':'⚠️ Åpen'}</span>
+            <div><div style="font-weight:600;font-size:.95rem">${s.tittel}</div><div style="font-size:.8rem;color:#888;margin:.2rem 0">📍 ${s.sted}</div><div style="font-size:.8rem;color:#888">👤 ${s.userName} · ${new Date(s.createdAt).toLocaleDateString('no-NO')}</div></div>
+            <span style="background:${sColor};color:${sTColor};border-radius:20px;padding:.2rem .8rem;font-size:.78rem;font-weight:500;flex-shrink:0">${s.status==='løst'?'✅ Løst':'⚠️ Åpen'}</span>
           </div>
           ${s.beskrivelse?`<p style="font-size:.88rem;color:#555;margin-top:.6rem;line-height:1.6">${s.beskrivelse}</p>`:''}
           ${isAdmin?`<div style="display:flex;gap:.5rem;margin-top:.8rem;flex-wrap:wrap">
@@ -1517,78 +1287,41 @@ async function renderSkader(){
     });
   }catch(e){el.innerHTML='<p style="color:#c0392b;font-size:.88rem">Kunne ikke laste skader.</p>';}
 }
-
 window.oppdaterSkadeStatus=async function(firestoreId,status){
-  try{
-    await setDoc(doc(db,'skader',firestoreId),{status},{merge:true});
-    showToast(status==='løst'?'Skade merket som løst! ✅':'Skade gjenåpnet');
-    renderSkader();
-  }catch(e){showToast('Feil','error');}
+  try{await setDoc(doc(db,'skader',firestoreId),{status},{merge:true});showToast(status==='løst'?'Skade merket som løst! ✅':'Skade gjenåpnet');renderSkader();}
+  catch(e){showToast('Feil','error');}
 };
-
 window.slettSkade=async function(firestoreId,bildeUrl){
-  try{
-    await deleteDoc(doc(db,'skader',firestoreId));
-    if(bildeUrl){try{await deleteObject(ref(storage,bildeUrl));}catch(e){}}
-    showToast('Skade slettet!');
-    renderSkader();
-  }catch(e){showToast('Feil ved sletting','error');}
+  try{await deleteDoc(doc(db,'skader',firestoreId));if(bildeUrl){try{await deleteObject(ref(storage,bildeUrl));}catch(e){}}showToast('Skade slettet!');renderSkader();}
+  catch(e){showToast('Feil ved sletting','error');}
 };
 
 // ─── Varsler ──────────────────────────────────────────────────────────────
-let lastSeenTimestamp = localStorage.getItem('trm-last-seen') || '1970-01-01T00:00:00.000Z';
-let unseenCount = 0;
-
+let unseenCount=0;
 function checkNotifications(){
   if(!currentUser||currentUser.role!=='admin')return;
-  unseenCount = bookings.filter(b=>
-    b.status !== 'blocked' &&
-    b.createdAt &&
-    b.createdAt > lastSeenTimestamp &&
-    b.userId !== currentUser.id
-  ).length;
-  const badge = document.getElementById('notif-badge');
-  if(badge){
-    badge.style.display = unseenCount > 0 ? 'inline' : 'none';
-    badge.textContent = unseenCount;
-  }
+  unseenCount=bookings.filter(b=>b.status!=='blocked'&&b.createdAt&&b.createdAt>lastSeenTimestamp&&b.userId!==currentUser.id).length;
+  const badge=document.getElementById('notif-badge');
+  if(badge){badge.style.display=unseenCount>0?'inline':'none';badge.textContent=unseenCount;}
 }
-
 function markAllSeen(){
-  lastSeenTimestamp = new Date().toISOString();
-  localStorage.setItem('trm-last-seen', lastSeenTimestamp);
-  unseenCount = 0;
-  const badge = document.getElementById('notif-badge');
-  if(badge) badge.style.display = 'none';
+  lastSeenTimestamp=new Date().toISOString();
+  localStorage.setItem('trm-last-seen',lastSeenTimestamp);
+  unseenCount=0;
+  const badge=document.getElementById('notif-badge');if(badge)badge.style.display='none';
   renderNotifList();
 }
-
 function renderNotifList(){
-  const el = document.getElementById('notif-list'); if(!el)return;
-  const unseen = bookings.filter(b=>
-    b.status !== 'blocked' &&
-    b.createdAt &&
-    b.createdAt > lastSeenTimestamp &&
-    b.userId !== currentUser.id
-  );
-  if(!unseen.length){ el.innerHTML=''; return; }
-  el.innerHTML=`
-    <div style="background:#fff8e8;border:1px solid #f5d78e;border-radius:10px;padding:1rem;margin-bottom:1rem">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.6rem">
-        <b style="color:#856404">🔔 ${unseen.length} ny${unseen.length>1?'e':''} booking${unseen.length>1?'er':''}</b>
-        <button class="btn btn-sm" style="margin:0;background:#856404" onclick="markAllSeen()">Merk alle som lest</button>
-      </div>
-      ${unseen.map(b=>{
-        const u=USERS.find(x=>x.id===b.userId)||{initials:'?',color:'#888',bg:'#eee'};
-        return `<div style="display:flex;align-items:center;gap:.6rem;padding:.4rem 0;border-top:1px solid #f5d78e">
-          <div style="width:30px;height:30px;border-radius:50%;background:${u.bg};color:${u.color};display:flex;align-items:center;justify-content:center;font-weight:600;font-size:.72rem;flex-shrink:0">${u.initials}</div>
-          <div>
-            <div style="font-size:.88rem;font-weight:500">${b.name}</div>
-            <div style="font-size:.78rem;color:#856404">${fmt(b.from)} → ${fmt(b.to)} · ${b.nights} netter</div>
-          </div>
-        </div>`;
-      }).join('')}
-    </div>`;
+  const el=document.getElementById('notif-list');if(!el)return;
+  const unseen=bookings.filter(b=>b.status!=='blocked'&&b.createdAt&&b.createdAt>lastSeenTimestamp&&b.userId!==currentUser.id);
+  if(!unseen.length){el.innerHTML='';return;}
+  el.innerHTML=`<div style="background:#fff8e8;border:1px solid #f5d78e;border-radius:10px;padding:1rem;margin-bottom:1rem">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.6rem">
+      <b style="color:#856404">🔔 ${unseen.length} ny${unseen.length>1?'e':''} booking${unseen.length>1?'er':''}</b>
+      <button class="btn btn-sm" style="margin:0;background:#856404" onclick="markAllSeen()">Merk alle som lest</button>
+    </div>
+    ${unseen.map(b=>{const u=USERS.find(x=>x.id===b.userId)||{initials:'?',color:'#888',bg:'#eee'};return`<div style="display:flex;align-items:center;gap:.6rem;padding:.4rem 0;border-top:1px solid #f5d78e"><div style="width:30px;height:30px;border-radius:50%;background:${u.bg};color:${u.color};display:flex;align-items:center;justify-content:center;font-weight:600;font-size:.72rem;flex-shrink:0">${u.initials}</div><div><div style="font-size:.88rem;font-weight:500">${b.name}</div><div style="font-size:.78rem;color:#856404">${fmt(b.from)} → ${fmt(b.to)} · ${b.nights} netter</div></div></div>`;}).join('')}
+  </div>`;
 }
 
 // ─── Sjekklister ──────────────────────────────────────────────────────────
@@ -1604,8 +1337,7 @@ let lists={
 };
 function saveList(type){localStorage.setItem('trm-list-'+type,JSON.stringify(lists[type]));}
 function renderList(type){
-  const el=document.getElementById('list-'+type);if(!el)return;
-  el.innerHTML='';
+  const el=document.getElementById('list-'+type);if(!el)return;el.innerHTML='';
   lists[type].forEach((item,i)=>{
     const row=document.createElement('div');row.className='check-row';
     row.innerHTML=`<input type="checkbox" ${item.checked?'checked':''} style="width:18px;height:18px;cursor:pointer;accent-color:#1a6b8a;flex-shrink:0" onchange="toggleItem('${type}',${i},this.checked)">
@@ -1615,10 +1347,7 @@ function renderList(type){
   });
 }
 window.toggleItem=function(type,i,checked){lists[type][i].checked=checked;saveList(type);renderList(type);};
-window.addItem=function(type){
-  const inp=document.getElementById('new-'+type);const text=inp.value.trim();if(!text)return;
-  lists[type].push({text,checked:false});saveList(type);renderList(type);inp.value='';inp.focus();
-};
+window.addItem=function(type){const inp=document.getElementById('new-'+type);const text=inp.value.trim();if(!text)return;lists[type].push({text,checked:false});saveList(type);renderList(type);inp.value='';inp.focus();};
 window.removeItem=function(type,i){lists[type].splice(i,1);saveList(type);renderList(type);};
 window.resetChecks=function(type){lists[type].forEach(i=>i.checked=false);saveList(type);renderList(type);showToast('Avhukinger nullstilt!');};
 
@@ -1626,8 +1355,7 @@ window.resetChecks=function(type){lists[type].forEach(i=>i.checked=false);saveLi
 function parseNorDate(s){const[d,m,y]=s.split('.');return new Date(+y,+m-1,+d);}
 function renderOversikt(){
   const el=document.getElementById('oversikt-content');if(!el)return;
-  const years=[...new Set(SCHEDULE.map(s=>s.year))];
-  const today=new Date();let html='';
+  const years=[...new Set(SCHEDULE.map(s=>s.year))];const today=new Date();let html='';
   years.forEach(y=>{
     const rows=SCHEDULE.filter(s=>s.year===y);
     html+=`<div style="margin-bottom:1.5rem"><div style="font-size:1rem;font-weight:600;color:#1a6b8a;margin-bottom:.5rem;padding-bottom:.4rem;border-bottom:2px solid #e8f4f8">${y}</div><div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:.85rem"><thead><tr style="background:#f8f6f2"><th style="text-align:left;padding:.5rem .7rem;font-weight:500;color:#666;border-bottom:1px solid #e8e4df">Periode</th><th style="text-align:left;padding:.5rem .7rem;font-weight:500;color:#666;border-bottom:1px solid #e8e4df">Fra</th><th style="text-align:left;padding:.5rem .7rem;font-weight:500;color:#666;border-bottom:1px solid #e8e4df">Til</th><th style="text-align:left;padding:.5rem .7rem;font-weight:500;color:#666;border-bottom:1px solid #e8e4df">Familie</th></tr></thead><tbody>`;
@@ -1648,8 +1376,9 @@ window.showPage=function(p,btn){
   document.querySelectorAll('nav button').forEach(e=>e.classList.remove('active'));
   document.getElementById('page-'+p).classList.add('active');
   if(btn)btn.classList.add('active');
-  if(p==='anbefalinger')renderTips('restauranter');
+  if(p==='bookings')renderAllBookings();
   if(p==='oversikt')renderOversikt();
+  if(p==='anbefalinger')renderTips('restauranter');
   if(p==='admin'){renderAdmin();checkNotifications();renderNotifList();markAllSeen();}
   if(p==='bilder'){loadImages('galleri');loadImages('innsjekk');loadImages('utsjekk');}
   if(p==='sjekkliste'){renderList('innsjekk');renderList('utsjekk');renderList('vedlikehold');renderSkader();}
@@ -1659,9 +1388,12 @@ window.switchTab=function(t,btn){
   document.querySelectorAll('.section').forEach(e=>e.classList.remove('active'));
   btn.classList.add('active');document.getElementById('tab-'+t).classList.add('active');
   if(t==='galleri')loadImages('galleri');
+  if(t==='innsjekk-bilder')loadImages('innsjekk');
   if(t==='utsjekk-bilder')loadImages('utsjekk');
-  if(t==='skade-liste')renderSkader();
+  if(t==='innsjekk-liste')renderList('innsjekk');
   if(t==='utsjekk-liste')renderList('utsjekk');
+  if(t==='vedlikehold-liste')renderList('vedlikehold');
+  if(t==='skade-liste')renderSkader();
 };
 function showToast(msg,type=''){
   const t=document.getElementById('toast');
