@@ -247,7 +247,7 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:#1a6b8a;box-sh
       <p class="error-msg" id="pin-error"></p>
       <button style="background:none;border:none;color:#aaa;font-size:.8rem;cursor:pointer;margin-top:.5rem" onclick="resetLogin()">← Velg annen bruker</button>
     </div>
-    <p style="font-size:.72rem;color:#ccc;margin-top:2rem">Versjon 126 · Juni 2026</p>
+    <p style="font-size:.72rem;color:#ccc;margin-top:2rem">Versjon 127 · Juli 2026</p>
   </div>
 </div>
 
@@ -1054,12 +1054,32 @@ window.submitBooking=async function(){
 // ─── Alle bookinger ───────────────────────────────────────────────────────
 function renderAllBookings(){
   const list=document.getElementById('all-bookings-list');if(!list)return;
+  const today=new Date();today.setHours(0,0,0,0);
   const real=bookings.filter(b=>b.status!=='blocked');
   if(!real.length){list.innerHTML='<p style="color:#aaa;font-size:.9rem">Ingen bookinger ennå.</p>';return;}
+  // Del i kommende og tidligere
+  const kommende=real.filter(b=>new Date(b.to)>=today).sort((a,b)=>a.from.localeCompare(b.from));
+  const tidligere=real.filter(b=>new Date(b.to)<today).sort((a,b)=>b.from.localeCompare(a.from));
+  const sortert=[...kommende,...tidligere];
   list.innerHTML='';
-  real.forEach(b=>{
+  if(kommende.length>0){
+    const h=document.createElement('div');
+    h.style.cssText='font-size:.78rem;font-weight:600;color:#1a6b8a;padding:.4rem 0;margin-bottom:.3rem;border-bottom:1px solid #e8f4f8';
+    h.textContent='📅 Kommende bookinger';
+    list.appendChild(h);
+  }
+  sortert.forEach((b,idx)=>{
+    // Legg til skillelinje mellom kommende og tidligere
+    if(idx===kommende.length&&tidligere.length>0){
+      const h=document.createElement('div');
+      h.style.cssText='font-size:.78rem;font-weight:600;color:#aaa;padding:.4rem 0;margin:.5rem 0 .3rem;border-bottom:1px solid #f0ece8';
+      h.textContent='🕐 Tidligere bookinger';
+      list.appendChild(h);
+    }
     const u=USERS.find(x=>x.id===b.userId)||{initials:'?',color:'#888',bg:'#eee'};
+    const isPast=new Date(b.to)<today;
     const el=document.createElement('div');el.className='booking-item';
+    el.style.opacity=isPast?'0.6':'1';
     el.innerHTML=`
       <div style="display:flex;align-items:center;gap:.7rem;flex:1;min-width:0">
         <div style="width:36px;height:36px;border-radius:50%;background:${u.bg};color:${u.color};display:flex;align-items:center;justify-content:center;font-weight:600;font-size:.75rem;flex-shrink:0">${u.initials}</div>
@@ -1070,7 +1090,7 @@ function renderAllBookings(){
           ${b.revenue?`<div style="font-size:.82rem;color:#1e7e34;font-weight:500">kr ${b.revenue.toLocaleString('no-NO')}</div>`:''}
         </div>
       </div>
-      <span class="status-badge status-confirmed">Bekreftet</span>`;
+      <span class="status-badge status-confirmed">${isPast?'Avsluttet':'Bekreftet'}</span>`;
     list.appendChild(el);
   });
 }
