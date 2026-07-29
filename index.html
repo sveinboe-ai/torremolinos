@@ -247,7 +247,7 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:#1a6b8a;box-sh
       <p class="error-msg" id="pin-error"></p>
       <button style="background:none;border:none;color:#aaa;font-size:.8rem;cursor:pointer;margin-top:.5rem" onclick="resetLogin()">← Velg annen bruker</button>
     </div>
-    <p style="font-size:.72rem;color:#ccc;margin-top:2rem">Versjon 127 · Juli 2026</p>
+    <p style="font-size:.72rem;color:#ccc;margin-top:2rem">Versjon 128 · Juli 2026</p>
   </div>
 </div>
 
@@ -1352,7 +1352,7 @@ const DEFAULT_LISTS={
 };
 let lists={
   innsjekk:JSON.parse(localStorage.getItem('trm-list-innsjekk')||'null')||DEFAULT_LISTS.innsjekk.map(t=>({text:t,checked:false})),
-  utsjekk:JSON.parse(localStorage.getItem('trm-list-utsjekk')||'null')||DEFAULT_LISTS.utsjekk.map(t=>({text:t,checked:false})),
+  utsjekk:JSON.parse(localStorage.getItem('trm-list-utsjekk')||'null')||['Sjekk at alle vinduer er lukket','Slå av alt elektrisk (klima, TV, lys)','Tøm kjøleskap for matvarer','Lås alle dører og porter','Etterlat nøkler på avtalt sted','Tøm søppel i anvist konteinere','Legg vaskepenger på spisebordet'].map(t=>({text:t,checked:false})),
   vedlikehold:JSON.parse(localStorage.getItem('trm-list-vedlikehold')||'null')||DEFAULT_LISTS.vedlikehold.map(t=>({text:t,checked:false})),
 };
 function saveList(type){localStorage.setItem('trm-list-'+type,JSON.stringify(lists[type]));}
